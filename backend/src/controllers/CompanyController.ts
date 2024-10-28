@@ -1,6 +1,5 @@
 import * as Yup from "yup";
 import { Request, Response } from "express";
-// import { getIO } from "../libs/socket";
 import AppError from "../errors/AppError";
 import Company from "../models/Company";
 
@@ -27,7 +26,7 @@ type CompanyData = {
   name: string;
   id?: number;
   phone?: string;
-  email?: string; 
+  email?: string;
   status?: boolean;
   planId?: number;
   campaignsEnabled?: boolean;
@@ -74,16 +73,16 @@ export const signup = async (req: Request, res: Response): Promise<Response> => 
   if (await CheckSettings("allowSignup") !== "enabled") {
     return res.status(401).json("🙎🏻‍♂️ Signup disabled");
   }
-  
+
   if (process.env.RECAPTCHA_SECRET_KEY) {
     if (!req.body.captchaToken) {
       return res.status(401).json("empty captcha");
     }
     const response = await axios.post(
-         `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${req.body.captchaToken}`
-      );
-      
-      if (!response.data.success) {
+      `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${req.body.captchaToken}`
+    );
+
+    if (!response.data.success) {
       return res.status(401).json("🤖 be gone");
     }
   }
@@ -95,10 +94,10 @@ export const signup = async (req: Request, res: Response): Promise<Response> => 
 
 export const show = async (req: Request, res: Response): Promise<Response> => {
   const { id } = req.params;
-  
+
   const requestUser = await User.findByPk(req.user.id);
 
-  if ( !requestUser.super && Number.parseInt(id, 10) !== requestUser.companyId ) {
+  if (!requestUser.super && Number.parseInt(id, 10) !== requestUser.companyId) {
     throw new AppError("ERR_FORBIDDEN", 403);
   }
 
@@ -144,7 +143,7 @@ export const updateSchedules = async (
   const { id } = req.params;
   const requestUser = await User.findByPk(req.user.id);
 
-  if ( !requestUser.super && Number.parseInt(id, 10) !== requestUser.companyId ) {
+  if (!requestUser.super && Number.parseInt(id, 10) !== requestUser.companyId) {
     throw new AppError("ERR_FORBIDDEN", 403);
   }
 

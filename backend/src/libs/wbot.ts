@@ -153,9 +153,8 @@ export const initWASocket = async (whatsapp: Whatsapp): Promise<Session> => {
           (await GetPublicSettingService({ key: "appName" })) || "Ticketz";
         const hostName = process.env.BACKEND_URL?.split("/")[2];
         const appVersion = GitInfo.tagName || GitInfo.commitHash;
-        const clientName = `${appName} ${appVersion}${
-          hostName ? ` - ${hostName}` : ""
-        }`;
+        const clientName = `${appName} ${appVersion}${hostName ? ` - ${hostName}` : ""
+          }`;
 
         wsocket = makeWASocket({
           logger: loggerBaileys,
@@ -216,8 +215,7 @@ export const initWASocket = async (whatsapp: Whatsapp): Promise<Session> => {
           "connection.update",
           async ({ connection, lastDisconnect, qr }) => {
             logger.info(
-              `Socket  ${name} Connection Update ${connection || ""} ${
-                lastDisconnect || ""
+              `Socket  ${name} Connection Update ${connection || ""} ${lastDisconnect || ""
               }`
             );
 
@@ -379,7 +377,6 @@ export const initWASocket = async (whatsapp: Whatsapp): Promise<Session> => {
       })();
     } catch (error) {
       Sentry.captureException(error);
-      console.log(error);
       reject(error);
     }
   });

@@ -618,7 +618,7 @@ export const handleMessage = async (
         }
       }
     } catch (e) {
-      console.log(e);
+      //
     }
 
     if (!ticket.queue && !fromMe && !ticket.userId && getSession?.queues?.length >= 1) {

@@ -54,7 +54,7 @@ export const sendText = async (
 
     return data;
   } catch (error) {
-    console.log(error);
+    //
   }
 };
 
@@ -81,7 +81,7 @@ export const sendAttachmentFromUrl = async (
 
     return data;
   } catch (error) {
-    console.log(error);
+    //
   }
 };
 
@@ -139,7 +139,6 @@ export const getProfile = async (id: string, token: string): Promise<any> => {
 
     return data;
   } catch (error) {
-    console.log(error);
     throw new Error("ERR_FETCHING_FB_USER_PROFILE_2");
   }
 };
@@ -154,7 +153,6 @@ export const getPageProfile = async (
     );
     return data;
   } catch (error) {
-    console.log(error);
     throw new Error("ERR_FETCHING_FB_PAGES");
   }
 };
@@ -166,7 +164,6 @@ export const profilePsid = async (id: string, token: string): Promise<any> => {
     );
     return data;
   } catch (error) {
-    console.log(error);
     await getProfile(id, token);
   }
 };
@@ -222,7 +219,7 @@ export const getAccessTokenFromPage = async (
 ): Promise<string> => {
   try {
 
-    if(!token) throw new Error("ERR_FETCHING_FB_USER_TOKEN");
+    if (!token) throw new Error("ERR_FETCHING_FB_USER_TOKEN");
 
     const data = await axios.get(
       "https://graph.facebook.com/v13.0/oauth/access_token",
@@ -238,7 +235,6 @@ export const getAccessTokenFromPage = async (
 
     return data.data.access_token;
   } catch (error) {
-    console.log(error);
     throw new Error("ERR_FETCHING_FB_USER_TOKEN");
   }
 };

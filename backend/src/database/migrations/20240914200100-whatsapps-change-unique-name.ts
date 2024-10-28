@@ -5,7 +5,7 @@ export default {
     try {
       await queryInterface.removeConstraint("Whatsapps", "Whatsapps_name_key");
     } catch (e) {
-      // no operation
+      //
     }
     return queryInterface.addConstraint("Whatsapps", {
       fields: ["companyId", "name"],
@@ -22,7 +22,7 @@ export default {
         name: "Whatsapps_name_key"
       });
     } catch (e) {
-      // no operation
+      //
     }
 
     return queryInterface.removeConstraint(

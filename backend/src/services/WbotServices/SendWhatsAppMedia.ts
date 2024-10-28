@@ -109,7 +109,6 @@ export const getMessageOptions = async (
     return options;
   } catch (e) {
     Sentry.captureException(e);
-    console.log(e);
     return null;
   }
 };
@@ -190,7 +189,6 @@ const SendWhatsAppMedia = async ({
     return sentMessage;
   } catch (err) {
     Sentry.captureException(err);
-    console.log(err);
     throw new AppError("ERR_SENDING_WAPP_MSG");
   }
 };

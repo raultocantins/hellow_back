@@ -39,7 +39,6 @@ const wbotMonitor = async (
 
       if (content.tag === "offer") {
         const { from, id } = node.attrs;
-        // console.log(`${from} is calling you with id ${id}`);
       }
 
       if (content.tag === "terminate") {
@@ -109,10 +108,6 @@ const wbotMonitor = async (
         });
       });
     });
-
-    // wbot.ev.on("contacts.set", async (contacts: IContact) => {
-    //  console.log("set", contacts);
-    // });
   } catch (err) {
     Sentry.captureException(err);
     logger.error(err);

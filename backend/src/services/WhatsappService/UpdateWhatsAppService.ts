@@ -83,8 +83,6 @@ const UpdateWhatsAppService = async ({
   }
 
   const whatsapp = await ShowWhatsAppService(whatsappId, companyId);
-  // console.log(transferMessage)
-  console.log(whatsapp)
   await whatsapp.update({
     name,
     status,

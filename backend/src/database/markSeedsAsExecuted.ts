@@ -36,7 +36,6 @@ async function markSeedsAsExecuted() {
         .map(seed => `('${seed}')`)
         .join(", ")}`
     );
-    console.log("All seeds marked as executed successfully!");
   } catch (error) {
     console.error("Error marking seeds as executed:", error);
   } finally {

@@ -20,7 +20,7 @@ export const useMultiFileAuthState = async (
         JSON.stringify(data, BufferJSON.replacer)
       );
     } catch (error) {
-      console.log("writeData error", error);
+      //
       return null;
     }
   };
@@ -34,7 +34,7 @@ export const useMultiFileAuthState = async (
       }
       return null;
     } catch (error) {
-      console.log("Read data error", error);
+      //
       return null;
     }
   };
@@ -43,7 +43,7 @@ export const useMultiFileAuthState = async (
     try {
       await cacheLayer.del(`sessions:${whatsapp.id}:${file}`);
     } catch (error) {
-      console.log("removeData", error);
+      //
     }
   };
 

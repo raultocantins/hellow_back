@@ -45,7 +45,7 @@ const apiTokenAuth = async (
 
     return next();
   } catch (e) {
-    console.log(e);
+    //
   }
 
   throw new AppError("Token inválido", 403);

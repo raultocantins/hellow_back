@@ -17,13 +17,13 @@ export const GetWbotMessage = async (
     proto.WebMessageInfo | Message | null | undefined
   > => {
 
-      const msgFound = await GetMessageService({
-        id: messageId,
-        ticketId: ticket.id
-      });
+    const msgFound = await GetMessageService({
+      id: messageId,
+      ticketId: ticket.id
+    });
 
-      return msgFound;
-    
+    return msgFound;
+
 
     return null;
   };
@@ -37,7 +37,6 @@ export const GetWbotMessage = async (
 
     return msgFound;
   } catch (err) {
-    console.log(err);
     throw new AppError("ERR_FETCH_WAPP_MSG");
   }
 };

@@ -28,20 +28,19 @@ const DeleteWhatsAppMessage = async (messageId: string): Promise<Message> => {
     const wbot = await GetTicketWbot(ticket);
     const messageDelete = messageToDelete as proto.WebMessageInfo;
 
-    
-      const menssageDelete = messageToDelete as Message;
 
-      await (wbot as WASocket).sendMessage(menssageDelete.remoteJid, {
-        delete: {
-          id: menssageDelete.id,
-          remoteJid: menssageDelete.remoteJid,
-          participant: menssageDelete.participant,
-          fromMe: menssageDelete.fromMe
-        }
-      });
-    
+    const menssageDelete = messageToDelete as Message;
+
+    await (wbot as WASocket).sendMessage(menssageDelete.remoteJid, {
+      delete: {
+        id: menssageDelete.id,
+        remoteJid: menssageDelete.remoteJid,
+        participant: menssageDelete.participant,
+        fromMe: menssageDelete.fromMe
+      }
+    });
+
   } catch (err) {
-    console.log(err);
     throw new AppError("ERR_DELETE_WAPP_MSG");
   }
   await message.update({ isDeleted: true });

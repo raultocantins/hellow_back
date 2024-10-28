@@ -11,7 +11,7 @@ module.exports = {
           [
             {
               name: "Admin",
-              email: process.env.EMAIL_ADDRESS || "admin@ticketz.host",
+              email: process.env.EMAIL_ADDRESS || "admin@hellow.host",
               profile: "admin",
               passwordHash,
               companyId: 1,

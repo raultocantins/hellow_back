@@ -150,7 +150,7 @@ export const initWASocket = async (whatsapp: Whatsapp): Promise<Session> => {
         const userDevicesCache: CacheStore = new NodeCache();
 
         const appName =
-          (await GetPublicSettingService({ key: "appName" })) || "Ticketz";
+          (await GetPublicSettingService({ key: "appName" })) || "Hellow";
         const hostName = process.env.BACKEND_URL?.split("/")[2];
         const appVersion = GitInfo.tagName || GitInfo.commitHash;
         const clientName = `${appName} ${appVersion}${hostName ? ` - ${hostName}` : ""

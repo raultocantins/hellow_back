@@ -1,5 +1,5 @@
 networks:
-  ticketz:
+  hellow:
   nginx-proxy:
 
 volumes:
@@ -13,12 +13,11 @@ volumes:
   postgres_data:
   backend_public:
   backend_private:
-    
-services:
 
+services:
   nginx-proxy:
     image: nginxproxy/nginx-proxy
-    container_name: ticketz-nginx-proxy
+    container_name: hellow-nginx-proxy
     restart: always
     ports:
       - "80:80"
@@ -29,14 +28,14 @@ services:
       - ngx_html:/usr/share/nginx/html
       - ngx_dhparam:/etc/nginx/dhparam
       - ngx_certs:/etc/nginx/certs:ro
-      - ./confs/nginx-ticketz.conf:/etc/nginx/conf.d/ticketz.conf
+      - ./confs/nginx-hellow.conf:/etc/nginx/conf.d/hellow.conf
       - /var/run/docker.sock:/tmp/docker.sock:ro
     networks:
       - nginx-proxy
 
   acme-companion:
     image: nginxproxy/acme-companion
-    container_name: ticketz-acme-companion
+    container_name: hellow-acme-companion
     restart: always
     depends_on:
       - nginx-proxy
@@ -48,7 +47,7 @@ services:
       - ngx_acme:/etc/acme.sh
       - /var/run/docker.sock:/var/run/docker.sock:ro
     environment:
-      - NGINX_PROXY_CONTAINER=ticketz-nginx-proxy
+      - NGINX_PROXY_CONTAINER=hellow-nginx-proxy
     networks:
       - nginx-proxy
 
@@ -67,7 +66,7 @@ services:
       - postgres
       - redis
     networks:
-      - ticketz
+      - hellow
       - nginx-proxy
 
   frontend:
@@ -77,13 +76,13 @@ services:
     env_file:
       - .env-frontend-acme
     volumes:
-      - backend_public:/var/www/backend-public/      
+      - backend_public:/var/www/backend-public/
     restart: always
     depends_on:
       - acme-companion
       - backend
     networks:
-      - ticketz
+      - hellow
       - nginx-proxy
 
   postgres:
@@ -91,15 +90,15 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_USER=${POSTGRES_USER:-ticketz}
-      - POSTGRES_DB=${POSTGRES_DB:-ticketz}
+      - POSTGRES_USER=${POSTGRES_USER:-hellow}
+      - POSTGRES_DB=${POSTGRES_DB:-hellow}
       - POSTGRES_HOST_AUTH_METHOD=trust
       - TZ=${TZ:-America/Sao_Paulo}
     expose:
       - 5432
     restart: always
     networks:
-      - ticketz
+      - hellow
 
   redis:
     image: redis:7-alpine
@@ -110,4 +109,4 @@ services:
     volumes:
       - redis_data:/data
     networks:
-      - ticketz
+      - hellow

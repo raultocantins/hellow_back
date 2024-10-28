@@ -8,8 +8,8 @@ type JwtConfig = {
     refreshExpiresIn: string;
 };
 
-const CACHE_KEY_JWT_SECRET = "TICKETZ_JWT_SECRET";
-const CACHE_KEY_JWT_REFRESH_SECRET = "TICKETZ_JWT_REFRESH_SECRET";
+const CACHE_KEY_JWT_SECRET = "HELLOW_JWT_SECRET";
+const CACHE_KEY_JWT_REFRESH_SECRET = "HELLOW_JWT_REFRESH_SECRET";
 
 function generateSecret(length: number): string {
     const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+";

@@ -38,7 +38,7 @@ Você deve fazer login no seu servidor usando o mesmo usuário que você usou pa
 Primeiro você precisa mover o diretório atual para a pasta de instalação:
 
 ```bash
-cd ~/ticketz-docker-acme
+cd ~/hellow-docker-acme
 ```
 
 Após isso, você pode obter um relatório completo de logs com o seguinte comando:
@@ -65,8 +65,8 @@ Em ambos os casos é necessário clonar o repositório, necessário então abrir
 um terminal de comandos:
 
 ```bash
-git clone https://github.com/allgood/ticketz.git
-cd ticketz
+git clone https://github.com/allgood/hellow.git
+cd hellow
 ```
 
 ## Rodando localmente
@@ -84,9 +84,9 @@ docker compose -f docker-compose-local.yaml up -d
 ```
 
 Na primeira execução o sistema vai inicializar os bancos de dados e tabelas,
-e após alguns minutos o Ticketz estará acessível pela porta 3000
+e após alguns minutos o hellow estará acessível pela porta 3000
 
-O usuário padrão é `admin@ticketz.host` e a senha padrão é `123456`
+O usuário padrão é `admin@hellow.host` e a senha padrão é `123456`
 
 A aplicação irá se reiniciar automaticamente a cada reboot do servidor.
 
@@ -102,9 +102,9 @@ Tendo um servidor acessível pela internet, é necessário ajustar dois nomes
 de DNS a sua escolha, um para o backend e outro para o frontend, e também um
 endereço de email para cadastro dos certificados, por exemplo:
 
-- **backend:** api.ticketz.exemplo.com.br
-- **frontend:** ticketz.exemplo.com.br
-- **email:** ticketz@exemplo.com.br
+- **backend:** api.hellow.exemplo.com.br
+- **frontend:** hellow.exemplo.com.br
+- **email:** hellow@exemplo.com.br
 
 É necessário editar os arquivos `.env-backend-acme` e `.env-frontend-acme`
 definindo neles estes valores.
@@ -125,8 +125,8 @@ sudo docker compose -f docker-compose-acme.yaml up -d
 ```
 
 Na primeira execução o Docker irá fazer a compilação do código e criação dos
-conteiners, e após isso o ticketz vai inicializar os bancos de dados e
-tabelas. Esta operação pode levar bastante tempo, depois disso o Ticketz
+conteiners, e após isso o hellow vai inicializar os bancos de dados e
+tabelas. Esta operação pode levar bastante tempo, depois disso o hellow
 estará acessível pelo endereço fornecido para oo frontend.
 
 O usuário padrão será o endereço de email fornecido na configuração do arquivo `.env-backend-acme` e a senha padrão é `123456`

@@ -10,7 +10,7 @@ RUN --mount=type=cache,target=/root/.npm \
     npm ci && npm run build
 
 # Stage 2: Create the final image without source files
-FROM ghcr.io/ticketz-oss/node
+FROM ghcr.io/hellow-oss/node
 
 WORKDIR /usr/src/app
 

@@ -1,5 +1,5 @@
 networks:
-  ticketz:
+  hellow:
 
 volumes:
   postgres_data:
@@ -8,7 +8,6 @@ volumes:
   backend_private:
 
 services:
-
   backend:
     build:
       context: ./backend
@@ -25,7 +24,7 @@ services:
     ports:
       - ${BACKEND_PORT:-8080}:3000
     networks:
-      - ticketz
+      - hellow
 
   frontend:
     ports:
@@ -41,22 +40,22 @@ services:
     depends_on:
       - backend
     networks:
-      - ticketz
+      - hellow
 
   postgres:
     image: postgres:16-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_USER=${POSTGRES_USER:-ticketz}
-      - POSTGRES_DB=${POSTGRES_DB:-ticketz}
+      - POSTGRES_USER=${POSTGRES_USER:-hellow}
+      - POSTGRES_DB=${POSTGRES_DB:-hellow}
       - POSTGRES_HOST_AUTH_METHOD=trust
       - TZ=${TZ:-America/Sao_Paulo}
     expose:
       - 5432
     restart: always
     networks:
-      - ticketz
+      - hellow
 
   redis:
     image: redis:alpine
@@ -67,4 +66,4 @@ services:
     volumes:
       - redis_data:/data
     networks:
-      - ticketz
+      - hellow

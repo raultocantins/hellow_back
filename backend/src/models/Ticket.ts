@@ -35,7 +35,7 @@ class Ticket extends Model<Ticket> {
   @Column({ defaultValue: "pending" })
   status: string;
 
-  @Column({ defaultValue: "whatsapp" })
+  @Column({ defaultValue: "facebook" })
   channel: string;
 
   @Column

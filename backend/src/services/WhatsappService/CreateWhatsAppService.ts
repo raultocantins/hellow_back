@@ -48,7 +48,7 @@ const CreateWhatsAppService = async ({
   facebookUserToken,
   facebookPageUserId,
   tokenMeta,
-  channel = "whatsapp"
+  channel = "facebook"
 }: Request): Promise<Response> => {
   const company = await Company.findOne({
     where: {

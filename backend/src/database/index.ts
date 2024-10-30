@@ -25,7 +25,6 @@ import ContactList from "../models/ContactList";
 import ContactListItem from "../models/ContactListItem";
 import Campaign from "../models/Campaign";
 import CampaignSetting from "../models/CampaignSetting";
-import Baileys from "../models/Baileys";
 import CampaignShipping from "../models/CampaignShipping";
 import Announcement from "../models/Announcement";
 import Chat from "../models/Chat";
@@ -33,7 +32,6 @@ import ChatUser from "../models/ChatUser";
 import ChatMessage from "../models/ChatMessage";
 import Invoices from "../models/Invoices";
 import Subscriptions from "../models/Subscriptions";
-import BaileysKeys from "../models/BaileysKeys";
 import UserSocketSession from "../models/UserSocketSession";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -69,8 +67,6 @@ const models = [
   ContactListItem,
   Campaign,
   CampaignSetting,
-  Baileys,
-  BaileysKeys,
   CampaignShipping,
   Announcement,
   Chat,

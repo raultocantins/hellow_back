@@ -8,6 +8,7 @@ interface Request {
   body: string;
   ticket: Ticket;
   quotedMsg?: Message;
+
 }
 
 const SendWhatsAppMessage = async ({ body, ticket }: Request): Promise<any> => {
@@ -16,7 +17,8 @@ const SendWhatsAppMessage = async ({ body, ticket }: Request): Promise<any> => {
     await sendText(
       number,
       formatBody(body, ticket.contact),
-      ticket.whatsapp.facebookUserToken
+      ticket.whatsapp.facebookUserToken,
+      ticket?.company?.phone
     );
 
     await ticket.update({ lastMessage: body });

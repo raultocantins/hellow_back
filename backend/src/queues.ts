@@ -16,9 +16,8 @@ import ContactList from "./models/ContactList";
 import ContactListItem from "./models/ContactListItem";
 import CampaignSetting from "./models/CampaignSetting";
 import CampaignShipping from "./models/CampaignShipping";
-import GetWhatsappWbot from "./helpers/GetWhatsappWbot";
+// import GetWhatsappWbot from "./helpers/GetWhatsappWbot";
 import sequelize from "./database";
-import { getMessageOptions } from "./services/WbotServices/SendWhatsAppMedia";
 import { getIO } from "./libs/socket";
 import User from "./models/User";
 import Company from "./models/Company";
@@ -536,7 +535,7 @@ async function handleDispatchCampaign(job) {
     const { data } = job;
     const { campaignShippingId, campaignId }: DispatchCampaignData = data;
     const campaign = await getCampaign(campaignId);
-    const wbot = await GetWhatsappWbot(campaign.whatsapp);
+    // const wbot = await GetWhatsappWbot(campaign.whatsapp);
 
     logger.info(
       `Disparo de campanha solicitado: Campanha=${campaignId};Registro=${campaignShippingId}`
@@ -552,20 +551,20 @@ async function handleDispatchCampaign(job) {
     const chatId = `${campaignShipping.number}@s.whatsapp.net`;
 
     if (campaign.confirmation && campaignShipping.confirmation === null) {
-      await wbot.sendMessage(chatId, {
-        text: campaignShipping.confirmationMessage
-      });
+      // await wbot.sendMessage(chatId, {
+      //   text: campaignShipping.confirmationMessage
+      // });
       await campaignShipping.update({ confirmationRequestedAt: moment() });
     } else {
-      await wbot.sendMessage(chatId, {
-        text: campaignShipping.message
-      });
+      // await wbot.sendMessage(chatId, {
+      //   text: campaignShipping.message
+      // });
       if (campaign.mediaPath) {
         const filePath = path.resolve("public", campaign.mediaPath);
-        const options = await getMessageOptions(campaign.mediaName, filePath);
-        if (Object.keys(options).length) {
-          await wbot.sendMessage(chatId, { ...options });
-        }
+        // const options = await getMessageOptions(campaign.mediaName, filePath);
+        // if (Object.keys(options).length) {
+        //   await wbot.sendMessage(chatId, { ...options });
+        // }
       }
       await campaignShipping.update({ deliveredAt: moment() });
     }
@@ -621,9 +620,8 @@ async function handleInvoiceCreate() {
       if (dias < 20) {
         const plan = await Plan.findByPk(c.planId);
 
-        const sql = `SELECT COUNT(*) mycount FROM "Invoices" WHERE "companyId" = ${
-          c.id
-        } AND "dueDate"::text LIKE '${moment(dueDate).format("yyyy-MM-DD")}%';`;
+        const sql = `SELECT COUNT(*) mycount FROM "Invoices" WHERE "companyId" = ${c.id
+          } AND "dueDate"::text LIKE '${moment(dueDate).format("yyyy-MM-DD")}%';`;
         const invoice: { mycount: number }[] = await sequelize.query(sql, {
           type: QueryTypes.SELECT
         });

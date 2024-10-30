@@ -1,5 +1,4 @@
 import AppError from "../../errors/AppError";
-import { getWbot } from "../../libs/wbot";
 
 interface PrivacyData {
   readreceipts?: "all" | "none";
@@ -16,17 +15,18 @@ interface PrivacyData {
 const ShowPrivacyService = async (
   whatsappId: number | string
 ): Promise<PrivacyData> => {
-  if (typeof whatsappId === "string") {
-    whatsappId = parseInt(whatsappId, 10);
-  }
-  const wbot = getWbot(whatsappId);
-  const privacy: PrivacyData = await wbot.fetchPrivacySettings(true);
+  // if (typeof whatsappId === "string") {
+  //   whatsappId = parseInt(whatsappId, 10);
+  // }
+  // const wbot = getWbot(whatsappId);
+  // const privacy: PrivacyData = await wbot.fetchPrivacySettings(true);
 
-  if (!privacy) {
-    throw new AppError("ERR_NO_PRIVACY_FOUND", 404);
-  }
+  // if (!privacy) {
+  //   throw new AppError("ERR_NO_PRIVACY_FOUND", 404);
+  // }
 
-  return privacy;
+  // return privacy;
+  return {}
 };
 
 export default ShowPrivacyService;

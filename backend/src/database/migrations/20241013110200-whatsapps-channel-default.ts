@@ -5,7 +5,7 @@ export default {
     return queryInterface.changeColumn("Whatsapps", "channel", {
       type: DataTypes.STRING,
       allowNull: false,
-      defaultValue: "whatsapp"
+      defaultValue: "facebook"
     });
   },
 

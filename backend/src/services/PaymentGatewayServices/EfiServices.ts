@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import EfiPay, { EfiCredentials } from "sdk-typescript-apis-efi";
+import EfiPay from "sdk-typescript-apis-efi";
 import path from "path";
 import GetSuperSettingService from "../SettingServices/GetSuperSettingService";
 import { logger } from "../../utils/logger";
@@ -17,7 +17,18 @@ const privateFolder = __dirname.endsWith("/dist")
   ? path.resolve(__dirname, "..", "private")
   : path.resolve(__dirname, "..", "..", "..", "private");
 
-async function getEfiOptions(): Promise<EfiCredentials> {
+interface PaymentGatewayOptions {
+  sandbox: boolean;
+  client_id: string;
+  client_secret: string;
+  partner_token?: string;
+  certificate?: string;
+  cert_base64?: boolean;
+  pix_cert?: string;
+  pemKey?: string;
+  validateMtls?: boolean;
+}
+async function getEfiOptions(): Promise<PaymentGatewayOptions> {
   const cert = `${privateFolder}/${await GetSuperSettingService({
     key: "_efiCertFile"
   })}`;
@@ -157,7 +168,7 @@ export const efiCheckStatus = async (
     }
 
     const { pix } = txDetail;
-    if (pix[0].valor >= invoice.value) {
+    if (parseFloat(pix[0].valor) >= invoice.value) {
       await processInvoicePaid(invoice);
       return true;
     }

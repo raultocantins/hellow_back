@@ -1,8 +1,7 @@
 import Whatsapp from "../models/Whatsapp";
-import GetWhatsappWbot from "./GetWhatsappWbot";
 import fs from "fs";
-
-import { getMessageOptions } from "../services/WbotServices/SendWhatsAppMedia";
+import sendFacebookMessage from "../services/FacebookServices/sendFacebookMessage";
+import { sendFacebookMessageMedia } from "../services/FacebookServices/sendFacebookMessageMedia";
 
 export type MessageData = {
   number: number | string;
@@ -15,7 +14,6 @@ export const SendMessage = async (
   messageData: MessageData
 ): Promise<any> => {
   try {
-    const wbot = await GetWhatsappWbot(whatsapp);
     const chatId = `${messageData.number}@s.whatsapp.net`;
 
     let message;
@@ -23,14 +21,11 @@ export const SendMessage = async (
     const body = `${messageData.body}`;
 
     if (messageData.mediaPath) {
-      const options = await getMessageOptions(body, messageData.mediaPath);
-      if (options) {
-        message = await wbot.sendMessage(chatId, {
-          ...options
-        });
-      }
+
+      // message = await sendFacebookMessage(chatId);
+
     } else {
-      message = await wbot.sendMessage(chatId, { text: body });
+      // message = await sendFacebookMessage(chatId, { text: body });
     }
 
     return message;

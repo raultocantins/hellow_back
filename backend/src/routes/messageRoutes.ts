@@ -29,11 +29,5 @@ messageRoutes.post("/api/messages/send",
   MessageController.send
 );
 
-/* * /
-messageRoutes.get("/api/messages/sendGammu",
-  basicAuth,
-  MessageController.sendGammu);
-);
-/* */
 
 export default messageRoutes;

@@ -11,8 +11,6 @@ import Whatsapp from "../models/Whatsapp";
 import ListMessagesService from "../services/MessageServices/ListMessagesService";
 import ShowTicketService from "../services/TicketServices/ShowTicketService";
 import DeleteWhatsAppMessage from "../services/WbotServices/DeleteWhatsAppMessage";
-import SendWhatsAppMedia from "../services/WbotServices/SendWhatsAppMedia";
-import SendWhatsAppMessage from "../services/WbotServices/SendWhatsAppMessage";
 import CheckContactNumber from "../services/WbotServices/CheckNumber";
 import EditWhatsAppMessage from "../services/WbotServices/EditWhatsAppMessage";
 
@@ -70,19 +68,11 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
 
   const ticket = await ShowTicketService(ticketId, companyId);
   const { channel } = ticket;
-  if (channel === "whatsapp") {
-    SetTicketMessagesAsRead(ticket);
-  }
+  // if (channel === "whatsapp") {
+  //   SetTicketMessagesAsRead(ticket);
+  // }
 
   if (medias) {
-    if (channel === "whatsapp") {
-      await Promise.all(
-        medias.map(async (media: Express.Multer.File) => {
-          await SendWhatsAppMedia({ media, ticket });
-        })
-      );
-    }
-
     if (["facebook", "instagram"].includes(channel)) {
       await Promise.all(
         medias.map(async (media: Express.Multer.File) => {
@@ -96,10 +86,6 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
         `Checking if ${ticket.contact.number} is a valid ${channel} contact`
       );
       await sendFaceMessage({ body, ticket, quotedMsg });
-    }
-
-    if (channel === "whatsapp") {
-      await SendWhatsAppMessage({ body, ticket, quotedMsg });
     }
   }
 

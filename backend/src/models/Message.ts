@@ -44,7 +44,7 @@ class Message extends Model {
   @Column
   fromMe: boolean;
 
-  @Column({ defaultValue: "whatsapp" })
+  @Column({ defaultValue: "facebook" })
   channel: string;
 
   @Column(DataType.TEXT)

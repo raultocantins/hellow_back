@@ -15,7 +15,6 @@ import formatBody from "../../helpers/Mustache";
 import Queue from "../../models/Queue";
 import Message from "../../models/Message";
 import FindOrCreateTicketServiceMeta from "../TicketServices/FindOrCreateTicketServiceMeta";
-import { verifyRating } from "../WbotServices/wbotMessageListener";
 import moment from "moment";
 import UserRating from "../../models/UserRating";
 import { isNil, isNull, head } from "lodash";
@@ -29,6 +28,17 @@ import sendFaceMessage from "../FacebookServices/sendFacebookMessage";
 
 import fs from "fs";
 import QueueOption from "../../models/QueueOption";
+export const verifyRating = (ticketTraking: TicketTraking) => {
+  if (
+    ticketTraking &&
+    ticketTraking.finishedAt === null &&
+    ticketTraking.userId !== null &&
+    ticketTraking.ratingAt !== null
+  ) {
+    return true;
+  }
+  return false;
+};
 
 interface IMe {
   name: string;
@@ -76,7 +86,7 @@ export interface ReplyTo {
   mid: string;
 }
 
-const verifyContact = async (msgContact: any, companyId: number, channel = "whatsapp") => {
+const verifyContact = async (msgContact: any, companyId: number, channel = "facebook") => {
   if (!msgContact) return null;
 
   const contactData = {

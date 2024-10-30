@@ -42,7 +42,7 @@ class Contact extends Model<Contact> {
   @Column
   profilePicUrl: string;
 
-  @Default("whatsapp")
+  @Default("facebook")
   @Column
   channel: string;
 

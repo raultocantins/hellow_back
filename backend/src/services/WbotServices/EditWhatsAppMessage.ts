@@ -1,5 +1,4 @@
 import AppError from "../../errors/AppError";
-import GetTicketWbot from "../../helpers/GetTicketWbot";
 import Message from "../../models/Message";
 import OldMessage from "../../models/OldMessage";
 import Ticket from "../../models/Ticket";
@@ -37,20 +36,20 @@ const EditWhatsAppMessage = async ({
 
   const { ticket } = message;
 
-  const wbot = await GetTicketWbot(ticket);
+  // const wbot = await GetTicketWbot(ticket);
 
   const msg = JSON.parse(message.dataJson);
   const formattedBody = formatBody(body, ticket.contact);
 
   try {
-    await wbot.sendMessage(
-      message.remoteJid,
-      {
-        text: formattedBody,
-        edit: msg.key
-      },
-      {}
-    );
+    // await wbot.sendMessage(
+    //   message.remoteJid,
+    //   {
+    //     text: formattedBody,
+    //     edit: msg.key
+    //   },
+    //   {}
+    // );
 
     const oldMessage = {
       messageId,

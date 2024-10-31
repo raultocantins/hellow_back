@@ -17,6 +17,7 @@ import EditWhatsAppMessage from "../services/WbotServices/EditWhatsAppMessage";
 import { sendFacebookMessageMedia } from "../services/FacebookServices/sendFacebookMessageMedia";
 import sendFaceMessage from "../services/FacebookServices/sendFacebookMessage";
 import { logger } from "../utils/logger";
+import { verifyMessage } from "../services/FacebookServices/facebookMessageListener";
 
 type IndexQuery = {
   pageNumber: string;
@@ -85,7 +86,8 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
       console.log(
         `Checking if ${ticket.contact.number} is a valid ${channel} contact`
       );
-      await sendFaceMessage({ body, ticket, quotedMsg });
+      var msg = await sendFaceMessage({ body, ticket, quotedMsg });
+      verifyMessage(msg, body, ticket, ticket.contact, companyId, channel);
     }
   }
 

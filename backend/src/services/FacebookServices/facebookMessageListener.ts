@@ -127,9 +127,10 @@ export const verifyMessage = async (
   companyId: number,
   channel: string,
 ) => {
+    const io = getIO();
   const quotedMsg = await verifyQuotedMessage(msg);
   const messageData = {
-    id: msg.mid || msg.message_id,
+    id: msg.id,
     ticketId: ticket.id,
     contactId: msg.is_echo ? undefined : contact.id,
     body: msg.text || body,
@@ -146,6 +147,18 @@ export const verifyMessage = async (
   await ticket.update({
     lastMessage: msg.text
   });
+
+  io.to(`company-${companyId}-${ticket.status}`)
+      .to(`company-${companyId}-notification`)
+      .to(`queue-${ticket.queueId}-${ticket.status}`)
+      .to(`queue-${ticket.queueId}-notification`)
+      .to(ticket.id.toString())
+      .to(`user-${ticket?.userId}`)
+      .emit(`company-${companyId}-ticket`, {
+        action: "update",
+        ticket
+      });
+
 };
 
 export const verifyMessageMedia = async (

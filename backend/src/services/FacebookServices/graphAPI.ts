@@ -44,23 +44,24 @@ export const sendText = async (
   token: string,
   whatsappNumber: string
 ): Promise<void> => {
-
   try {
-    const { data } = await apiBase(token).post(`${whatsappNumber}/messages`, {
-      messaging_product: "whatsapp",//deixar apenas aqui o whatsapp
-      recipient_type: "individual",
-      to: id,
-      type: "text",
-      text: {
-        "preview_url": false,
-        "body": text
+    const { data } = await apiBase(token).post(
+      `${whatsappNumber}/messages`,
+      {
+        messaging_product: "whatsapp",
+        recipient_type: "individual",
+        to: id,
+        type: "text",
+        text: {
+          preview_url: true,
+          body: text
+        }
       }
-    });
-
+    );
 
     return data;
   } catch (error) {
-    console.log(error)
+    console.log(error);
     //
   }
 };
@@ -225,7 +226,6 @@ export const getAccessTokenFromPage = async (
   token: string
 ): Promise<string> => {
   try {
-
     if (!token) throw new Error("ERR_FETCHING_FB_USER_TOKEN");
 
     const data = await axios.get(

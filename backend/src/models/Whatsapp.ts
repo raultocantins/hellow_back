@@ -107,6 +107,9 @@ class Whatsapp extends Model<Whatsapp> {
   @Column
   token: string;
 
+  @Column({ defaultValue: "" })
+  phone: string;
+
   @Column(DataType.TEXT)
   facebookUserId: string;
 

@@ -8,21 +8,30 @@ interface Request {
   body: string;
   ticket: Ticket;
   quotedMsg?: Message;
-
 }
 
-const SendWhatsAppMessage = async ({ body, ticket }: Request): Promise<any> => {
+interface MessageInterface {
+  id: string;
+  messaging_product: string;
+}
+
+const SendWhatsAppMessage = async ({
+  body,
+  ticket
+}: Request): Promise<MessageInterface> => {
   const { number } = ticket.contact;
   try {
-    await sendText(
+    var r = await sendText(
       number,
       formatBody(body, ticket.contact),
       ticket.whatsapp.facebookUserToken,
-      ticket?.company?.phone
+      ticket?.whatsapp.phone
     );
-
     await ticket.update({ lastMessage: body });
-
+    return {
+      id: r["messages"][0].id,
+      messaging_product: r["messaging_product"]
+    };
   } catch (err) {
     throw new AppError("ERR_SENDING_FACEBOOK_MSG");
   }

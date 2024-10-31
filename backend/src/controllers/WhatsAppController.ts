@@ -20,6 +20,7 @@ interface WhatsappData {
   status?: string;
   isDefault?: boolean;
   token?: string;
+  phone?:string;
 }
 
 interface QueryParams {
@@ -60,7 +61,8 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     ratingMessage,
     transferMessage,
     queueIds,
-    token
+    token,
+    phone
   }: WhatsappData = req.body;
   const { companyId } = req.user;
 
@@ -75,7 +77,8 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     transferMessage,
     queueIds,
     companyId,
-    token
+    token,
+    phone
   });
 
   const io = getIO();

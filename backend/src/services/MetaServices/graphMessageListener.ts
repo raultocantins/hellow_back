@@ -23,8 +23,8 @@ import { getIO } from "../../libs/socket";
 import FindOrCreateATicketTrakingService from "../TicketServices/FindOrCreateATicketTrakingService";
 import Setting from "../../models/Setting";
 
-import { sendFacebookMessageFileExternal, sendFacebookMessageMediaExternal } from "../FacebookServices/sendFacebookMessageMedia";
-import sendFaceMessage from "../FacebookServices/sendFacebookMessage";
+// import { sendFacebookMessageFileExternal, sendFacebookMessageMediaExternal } from "../FacebookServices/sendFacebookMessageMedia";
+import sendFaceMessage from "./sendWhatsappMessage";
 
 import fs from "fs";
 import QueueOption from "../../models/QueueOption";
@@ -126,20 +126,21 @@ export const verifyMessage = async (
   contact: Contact,
   companyId: number,
   channel: string,
+  fromMe:boolean
 ) => {
     const io = getIO();
   const quotedMsg = await verifyQuotedMessage(msg);
   const messageData = {
     id: msg.id,
     ticketId: ticket.id,
-    contactId: msg.is_echo ? undefined : contact.id,
+    contactId: contact.id,//verificar quando nao tiver contact.id
     body: msg.text || body,
-    fromMe: msg.is_echo,
+    fromMe: fromMe,
     read: msg?.is_echo,
     quotedMsgId: quotedMsg?.id,
     ack: 3,
     dataJson: JSON.stringify(msg),
-    channel: channel
+    channel: channel,
   };
 
   await CreateMessageService({ messageData, companyId });
@@ -163,77 +164,49 @@ export const verifyMessage = async (
 
 export const verifyMessageMedia = async (
   msg: any,
+  body: any,
   ticket: Ticket,
   contact: Contact,
   companyId: number,
   channel: string,
+  fromMe:boolean,
+  mediaId?:string,
 ): Promise<void> => {
-  const { data } = await axios.get(msg.attachments[0].payload.url, {
-    responseType: "arraybuffer"
-  });
-
-  // eslint-disable-next-line no-eval
-  const { fileTypeFromBuffer } = await (eval('import("file-type")') as Promise<
-    typeof import("file-type")
-  >);
-
-  const type = await fileTypeFromBuffer(data);
-
-  const fileName = `${new Date().getTime()}.${type.ext}`;
-
-  writeFileSync(
-    join(__dirname, "..", "..", "..", "public", fileName),
-    data,
-    "base64"
-  );
-
+  const io = getIO();
+  const quotedMsg = await verifyQuotedMessage(msg);
   const messageData = {
-    id: msg.mid,
+    id: msg.id,
     ticketId: ticket.id,
-    contactId: msg.is_echo ? undefined : contact.id,
-    body: msg?.text || fileName,
-    fromMe: msg.is_echo,
-    mediaType: msg.attachments[0].type,
-    mediaUrl: fileName,
-    read: msg.is_echo,
-    quotedMsgId: null,
+    contactId: contact.id, //verificar quando nao houveer contact.id no webhook
+    body: msg.text || body,
+    fromMe: fromMe,
+    read: msg?.is_echo,
+    quotedMsgId: quotedMsg?.id,
     ack: 3,
     dataJson: JSON.stringify(msg),
-    channel: channel
+    channel: channel,
+    mediaUrl:mediaId,
+    mediaType:msg.mediaType
   };
 
-  await CreateMessageService({ messageData, companyId: companyId });
+  await CreateMessageService({ messageData, companyId });
 
   await ticket.update({
-    lastMessage: msg?.text || fileName,
+    lastMessage: msg.text
   });
+
+  io.to(`company-${companyId}-${ticket.status}`)
+      .to(`company-${companyId}-notification`)
+      .to(`queue-${ticket.queueId}-${ticket.status}`)
+      .to(`queue-${ticket.queueId}-notification`)
+      .to(ticket.id.toString())
+      .to(`user-${ticket?.userId}`)
+      .emit(`company-${companyId}-ticket`, {
+        action: "update",
+        ticket
+      });
 };
 
-
-
-const sendMessageImage = async (
-  contact,
-  ticket: Ticket,
-  url: string,
-  caption: string
-) => {
-
-  let sentMessage
-  try {
-
-    sentMessage = await sendFacebookMessageMediaExternal({
-      url,
-      ticket,
-    })
-
-  } catch (error) {
-    await sendFaceMessage({
-      ticket,
-      body: formatBody('Não consegui enviar o PDF, tente novamente!', contact)
-    })
-  }
-  // verifyMessage(sentMessage, ticket, contact);
-};
 
 const verifyQueue = async (
   wbot: any,
@@ -535,16 +508,6 @@ const handleChartbot = async (ticket: Ticket, msg: string, wbot: any, dontReadTh
   }
 }
 
-const sendMessageLink = async (
-  ticket: Ticket,
-  url: string,
-) => {
-  await sendFacebookMessageFileExternal({
-    url,
-    ticket,
-  })
-  // verifyMessage(sentMessage, ticket, contact);
-};
 
 export const handleMessage = async (
   token: Whatsapp,
@@ -609,10 +572,10 @@ export const handleMessage = async (
     )
 
     if (message.attachments) {
-      await verifyMessageMedia(message, ticket, contact, companyId, channel);
+      await verifyMessageMedia(message,"body", ticket, contact, companyId, channel,false);
     }
 
-    await verifyMessage(message, message.text, ticket, contact, companyId, channel);
+    await verifyMessage(message, message.text, ticket, contact, companyId, channel,false);
 
 
 

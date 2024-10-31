@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import { getIO } from "../libs/socket";
 import Whatsapp from "../models/Whatsapp";
-import { getAccessTokenFromPage, getPageProfile, subscribeApp } from "../services/FacebookServices/graphAPI";
+import { getAccessTokenFromPage, getPageProfile, subscribeApp } from "../services/MetaServices/graphAPI";
 import CreateWhatsAppService from "../services/WhatsappService/CreateWhatsAppService";
 import ListWhatsAppsService from "../services/WhatsappService/ListWhatsAppsService";
 import ShowWhatsAppService from "../services/WhatsappService/ShowWhatsAppService";

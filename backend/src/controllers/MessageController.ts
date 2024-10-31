@@ -14,10 +14,14 @@ import DeleteWhatsAppMessage from "../services/WbotServices/DeleteWhatsAppMessag
 import CheckContactNumber from "../services/WbotServices/CheckNumber";
 import EditWhatsAppMessage from "../services/WbotServices/EditWhatsAppMessage";
 
-import { sendFacebookMessageMedia } from "../services/FacebookServices/sendFacebookMessageMedia";
-import sendFaceMessage from "../services/FacebookServices/sendFacebookMessage";
+import { sendWhatsappMessageMedia } from "../services/MetaServices/sendWhatsappMessageMedia";
+import sendFaceMessage from "../services/MetaServices/sendWhatsappMessage";
 import { logger } from "../utils/logger";
-import { verifyMessage } from "../services/FacebookServices/facebookMessageListener";
+import {
+  verifyMessage,
+  verifyMessageMedia
+} from "../services/MetaServices/graphMessageListener";
+import { uploadToWhatsApp } from "../services/MetaServices/graphAPI";
 
 type IndexQuery = {
   pageNumber: string;
@@ -69,15 +73,28 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
 
   const ticket = await ShowTicketService(ticketId, companyId);
   const { channel } = ticket;
-  // if (channel === "whatsapp") {
-  //   SetTicketMessagesAsRead(ticket);
-  // }
 
   if (medias) {
     if (["facebook", "instagram"].includes(channel)) {
       await Promise.all(
-        medias.map(async (media: Express.Multer.File) => {
-          await sendFacebookMessageMedia({ media, ticket });
+        medias.map(async media => {
+          const mediaData = await uploadToWhatsApp(
+            media.buffer,
+            media.originalname,
+            media.mimetype,
+            ticket
+          );
+          var msg = await sendWhatsappMessageMedia({ mediaData, ticket, body });
+          await verifyMessageMedia(
+            msg,
+            body,
+            ticket,
+            ticket.contact,
+            companyId,
+            channel,
+            true,
+            mediaData.mediaUrl
+          );
         })
       );
     }
@@ -87,7 +104,15 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
         `Checking if ${ticket.contact.number} is a valid ${channel} contact`
       );
       var msg = await sendFaceMessage({ body, ticket, quotedMsg });
-      verifyMessage(msg, body, ticket, ticket.contact, companyId, channel);
+      verifyMessage(
+        msg,
+        body,
+        ticket,
+        ticket.contact,
+        companyId,
+        channel,
+        true
+      );
     }
   }
 

@@ -1,14 +1,15 @@
 import { Router } from "express";
 import multer from "multer";
 import isAuth from "../middleware/isAuth";
-import uploadConfig from "../config/upload";
 import tokenAuth from "../middleware/tokenAuth";
 
 import * as MessageController from "../controllers/MessageController";
 
 const messageRoutes = Router();
 
-const upload = multer(uploadConfig);
+const upload = multer({
+  storage: multer.memoryStorage()
+});
 
 messageRoutes.get("/messages/:ticketId", isAuth, MessageController.index);
 

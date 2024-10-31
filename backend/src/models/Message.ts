@@ -51,14 +51,7 @@ class Message extends Model {
   body: string;
 
   @Column(DataType.STRING)
-  get mediaUrl(): string | null {
-    if (this.getDataValue("mediaUrl")) {
-      return `${process.env.BACKEND_URL}/public/${this.getDataValue(
-        "mediaUrl"
-      )}`;
-    }
-    return null;
-  }
+  mediaUrl: string | null;
 
   @Column(DataType.STRING)
   get thumbnailUrl(): string | null {

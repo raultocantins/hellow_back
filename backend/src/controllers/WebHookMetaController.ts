@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import Whatsapp from "../models/Whatsapp";
-import { handleMessage } from "../services/FacebookServices/facebookMessageListener";
+import { handleMessage } from "../services/MetaServices/graphMessageListener";
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
   const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "whaticket";

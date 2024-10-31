@@ -10,10 +10,10 @@ import Queue from "../../models/Queue";
 import ShowTicketService from "./ShowTicketService";
 import ShowWhatsAppService from "../WhatsappService/ShowWhatsAppService";
 import FindOrCreateATicketTrakingService from "./FindOrCreateATicketTrakingService";
-import sendFaceMessage from "../FacebookServices/sendFacebookMessage";
+import sendWhatsappMessage from "../MetaServices/sendWhatsappMessage";
 import AppError from "../../errors/AppError";
 import { GetCompanySetting } from "../../helpers/CheckSettings";
-import { verifyMessage } from "../FacebookServices/facebookMessageListener";
+import { verifyMessage } from "../MetaServices/graphMessageListener";
 
 interface TicketData {
   status?: string;
@@ -124,14 +124,14 @@ const UpdateTicketService = async ({
           const bodyRatingMessage = `${ratingTxt}\n\n*Digite uma nota de 1 a 5*\n`;
 
           if (ticket.channel === "whatsapp") {
-            await sendFaceMessage({ body: bodyRatingMessage, ticket });
+            await sendWhatsappMessage({ body: bodyRatingMessage, ticket });
           }
 
           if (["facebook", "instagram"].includes(ticket.channel)) {
             console.log(
               `Checking if ${ticket.contact.number} is a valid ${ticket.channel} contact`
             );
-            await sendFaceMessage({ body: bodyRatingMessage, ticket });
+            await sendWhatsappMessage({ body: bodyRatingMessage, ticket });
           }
 
           await ticketTraking.update({
@@ -160,17 +160,17 @@ const UpdateTicketService = async ({
       ) {
         const body = `${complationMessage}`;
 
-        if (ticket.channel === "whatsapp" && !ticket.isGroup) {
-          const sentMessage = await sendFaceMessage({ body, ticket });
+        // if (ticket.channel === "whatsapp" && !ticket.isGroup) {
+        //   const sentMessage = await sendWhatsappMessage({ body, ticket });
 
-          await verifyMessage(sentMessage, ticket, ticket, ticket.contact, 1, ticket.channel);
-        }
+        //   await verifyMessage(sentMessage, ticket, ticket, ticket.contact, 1, ticket.channel);
+        // }
 
         if (["facebook", "instagram"].includes(ticket.channel)) {
           console.log(
             `Checking if ${ticket.contact.number} is a valid ${ticket.channel} contact`
           );
-          await sendFaceMessage({ body, ticket });
+          await sendWhatsappMessage({ body, ticket });
         }
       }
 
@@ -200,7 +200,7 @@ const UpdateTicketService = async ({
         console.log(
           `Checking if ${ticket.contact.number} is a valid ${ticket.channel} contact`
         );
-        await sendFaceMessage({
+        await sendWhatsappMessage({
           body: "Você foi transferido, em breve iremos iniciar seu atendimento.",
           ticket
         });

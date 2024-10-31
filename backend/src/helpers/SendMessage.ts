@@ -1,7 +1,7 @@
 import Whatsapp from "../models/Whatsapp";
 import fs from "fs";
-import sendFacebookMessage from "../services/FacebookServices/sendFacebookMessage";
-import { sendFacebookMessageMedia } from "../services/FacebookServices/sendFacebookMessageMedia";
+import sendWhatsappMessage from "../services/MetaServices/sendWhatsappMessage";
+import { sendWhatsappMessageMedia } from "../services/MetaServices/sendWhatsappMessageMedia";
 
 export type MessageData = {
   number: number | string;

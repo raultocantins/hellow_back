@@ -21,7 +21,7 @@ const SendWhatsAppMessage = async ({
 }: Request): Promise<MessageInterface> => {
   const { number } = ticket.contact;
   try {
-    var r = await sendText(
+    var sendMessage = await sendText(
       number,
       formatBody(body, ticket.contact),
       ticket.whatsapp.facebookUserToken,
@@ -29,8 +29,8 @@ const SendWhatsAppMessage = async ({
     );
     await ticket.update({ lastMessage: body });
     return {
-      id: r["messages"][0].id,
-      messaging_product: r["messaging_product"]
+      id: sendMessage["messages"][0].id,
+      messaging_product: sendMessage["messaging_product"]
     };
   } catch (err) {
     throw new AppError("ERR_SENDING_FACEBOOK_MSG");

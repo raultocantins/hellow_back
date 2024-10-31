@@ -1,8 +1,7 @@
 import axios from "axios";
 import FormData from "form-data";
-import { createReadStream } from "fs";
 import { logger } from "../../utils/logger";
-import { te } from "date-fns/locale";
+import Ticket from "../../models/Ticket";
 
 const formData: FormData = new FormData();
 
@@ -45,19 +44,16 @@ export const sendText = async (
   whatsappNumber: string
 ): Promise<void> => {
   try {
-    const { data } = await apiBase(token).post(
-      `${whatsappNumber}/messages`,
-      {
-        messaging_product: "whatsapp",
-        recipient_type: "individual",
-        to: id,
-        type: "text",
-        text: {
-          preview_url: true,
-          body: text
-        }
+    const { data } = await apiBase(token).post(`${whatsappNumber}/messages`, {
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
+      to: id,
+      type: "text",
+      text: {
+        preview_url: true,
+        body: text
       }
-    );
+    });
 
     return data;
   } catch (error) {
@@ -66,70 +62,60 @@ export const sendText = async (
   }
 };
 
-export const sendAttachmentFromUrl = async (
+export const sendMediaFromUrl = async (
   id: string,
-  url: string,
+  mediaId: string,
   type: string,
-  token: string
+  token: string,
+  whatsappNumber: string,
+  text?: string
 ): Promise<void> => {
   try {
-    const { data } = await apiBase(token).post("me/messages", {
-      recipient: {
-        id
-      },
-      message: {
-        attachment: {
-          type,
-          payload: {
-            url
-          }
-        }
-      }
-    });
+    const messageData: any = {
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
+      to: id
+    };
+    switch (type) {
+      case "image":
+        messageData.type = type;
+        messageData.image = {
+          id: mediaId,
+          caption: text
+        };
+        break;
+      case "video":
+        messageData.type = "video";
+        messageData.video = {
+          id: mediaId,
+          caption: text
+        };
+        break;
+      case "audio":
+        messageData.type = "audio";
+        messageData.audio = {
+          id: mediaId
+        };
+        break;
+      case "application":
+        messageData.type = "document";
+        messageData.document = {
+          id: mediaId,
+          filename: text
+        };
+        break;
+      default:
+        throw new Error("Tipo de arquivo não suportado");
+    }
 
-    return data;
+    const { data } = await apiBase(token).post(
+      `${whatsappNumber}/messages`,
+      messageData
+    );
+
+    return { ...data, mediaType: messageData.type };
   } catch (error) {
-    //
-  }
-};
-
-export const sendAttachment = async (
-  id: string,
-  file: Express.Multer.File,
-  type: string,
-  token: string
-): Promise<void> => {
-  formData.append(
-    "recipient",
-    JSON.stringify({
-      id
-    })
-  );
-
-  formData.append(
-    "message",
-    JSON.stringify({
-      attachment: {
-        type,
-        payload: {
-          is_reusable: true
-        }
-      }
-    })
-  );
-
-  const fileReaderStream = createReadStream(file.path);
-
-  formData.append("filedata", fileReaderStream);
-
-  try {
-    await apiBase(token).post("me/messages", formData, {
-      headers: {
-        ...formData.getHeaders()
-      }
-    });
-  } catch (error) {
-    throw new Error(error);
+    console.log(error);
   }
 };
 
@@ -260,3 +246,37 @@ export const removeApplcation = async (
     logger.error("ERR_REMOVING_APP_FROM_PAGE");
   }
 };
+
+// Função para fazer upload de arquivos em memória para a API do WhatsApp
+export async function uploadToWhatsApp(
+  buffer: Buffer,
+  originalname: string,
+  mimetype: string,
+  ticket: Ticket
+) {
+  try {
+    const formData = new FormData();
+    formData.append("messaging_product", "whatsapp");
+    formData.append("file", buffer, originalname);
+    formData.append("type", mimetype);
+
+    const { data } = await apiBase(ticket.whatsapp.facebookUserToken).post(
+      `${ticket.whatsapp.phone}/media`,
+      formData
+    );
+    const mediaData = await apiBase(ticket.whatsapp.facebookUserToken).get(
+      data.id
+    );
+
+    return {
+      id: data.id, // media_id da API do WhatsApp
+      filename: originalname,
+      type: mimetype.split("/")[0],
+      filetype: mimetype.split("/")[1],
+      mediaUrl: mediaData.data.url // url da media na API do WhatsApp
+    };
+  } catch (error) {
+    console.error("Erro ao fazer upload para o WhatsApp:", error);
+    throw error;
+  }
+}

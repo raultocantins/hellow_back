@@ -13,11 +13,13 @@ interface Request {
 interface MessageInterface {
   id: string;
   messaging_product: string;
+  context?: any;
 }
 
 const SendWhatsAppMessage = async ({
   body,
-  ticket
+  ticket,
+  quotedMsg
 }: Request): Promise<MessageInterface> => {
   const { number } = ticket.contact;
   try {
@@ -25,12 +27,16 @@ const SendWhatsAppMessage = async ({
       number,
       formatBody(body, ticket.contact),
       ticket.whatsapp.facebookUserToken,
-      ticket?.whatsapp.phone
+      ticket?.whatsapp.phone,
+      quotedMsg?.id
     );
     await ticket.update({ lastMessage: body });
     return {
       id: sendMessage["messages"][0].id,
-      messaging_product: sendMessage["messaging_product"]
+      messaging_product: sendMessage["messaging_product"],
+      context: {
+        id: quotedMsg?.id
+      }
     };
   } catch (err) {
     throw new AppError("ERR_SENDING_FACEBOOK_MSG");

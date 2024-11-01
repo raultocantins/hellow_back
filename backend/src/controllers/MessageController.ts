@@ -15,7 +15,7 @@ import CheckContactNumber from "../services/WbotServices/CheckNumber";
 import EditWhatsAppMessage from "../services/WbotServices/EditWhatsAppMessage";
 
 import { sendWhatsappMessageMedia } from "../services/MetaServices/sendWhatsappMessageMedia";
-import sendFaceMessage from "../services/MetaServices/sendWhatsappMessage";
+import SendWhatsAppMessage from "../services/MetaServices/sendWhatsappMessage";
 import { logger } from "../utils/logger";
 import {
   verifyMessage,
@@ -84,7 +84,12 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
             media.mimetype,
             ticket
           );
-          var msg = await sendWhatsappMessageMedia({ mediaData, ticket, body });
+          const msg = await sendWhatsappMessageMedia({
+            mediaData,
+            ticket,
+            body,
+            quotedMsg
+          });
           await verifyMessageMedia(
             msg,
             body,
@@ -100,10 +105,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     }
   } else {
     if (["facebook", "instagram"].includes(channel)) {
-      console.log(
-        `Checking if ${ticket.contact.number} is a valid ${channel} contact`
-      );
-      var msg = await sendFaceMessage({ body, ticket, quotedMsg });
+      var msg = await SendWhatsAppMessage({ body, ticket, quotedMsg });
       verifyMessage(
         msg,
         body,

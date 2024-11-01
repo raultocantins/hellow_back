@@ -1,4 +1,5 @@
 import AppError from "../../errors/AppError";
+import Message from "../../models/Message";
 import Ticket from "../../models/Ticket";
 import { sendMediaFromUrl } from "./graphAPI";
 
@@ -13,17 +14,20 @@ interface Request {
   mediaData?: Media;
   body?: string;
   url?: string;
+  quotedMsg?: Message;
 }
 interface MessageInterface {
   id: string;
   messaging_product: string;
   mediaType: string;
+  context?: any;
 }
 
 export const sendWhatsappMessageMedia = async ({
   mediaData,
   ticket,
-  body
+  body,
+  quotedMsg
 }: Request): Promise<MessageInterface> => {
   try {
     const sendMessage = await sendMediaFromUrl(
@@ -32,7 +36,8 @@ export const sendWhatsappMessageMedia = async ({
       mediaData.type,
       ticket.whatsapp.facebookUserToken,
       ticket?.whatsapp.phone,
-      body
+      body,
+      quotedMsg?.id
     );
 
     await ticket.update({ lastMessage: mediaData.filename });
@@ -40,7 +45,10 @@ export const sendWhatsappMessageMedia = async ({
     return {
       id: sendMessage["messages"][0].id,
       messaging_product: sendMessage["messaging_product"],
-      mediaType:sendMessage["mediaType"]
+      mediaType: sendMessage["mediaType"],
+      context: {
+        id: quotedMsg?.id
+      }
     };
   } catch (err) {
     throw new AppError("ERR_SENDING_FACEBOOK_MSG");

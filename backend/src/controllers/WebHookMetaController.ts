@@ -26,28 +26,22 @@ export const webHook = async (
 ): Promise<Response> => {
   try {
     const { body } = req;
-    if (body.object === "page" || body.object === "instagram") {
-      let channel: string;
-
-      if (body.object === "page") {
-        channel = "facebook";
-      } else {
-        channel = "instagram";
-      }
+    if (body.object === "whatsapp_business_account") {
+      const channel = "facebook";
 
       body.entry?.forEach(async (entry: any) => {
-        const getTokenPage = await Whatsapp.findOne({
+        const whatsapp = await Whatsapp.findOne({
           where: {
             facebookPageUserId: entry.id,
             channel
           }
         });
 
-        if (getTokenPage) {
-          entry.messaging?.forEach((data: any) => {
-
-
-            handleMessage(getTokenPage, data, channel, getTokenPage.companyId);
+        if (whatsapp) {
+          entry.changes?.forEach((data: any) => {
+            if (data.value.messages) {
+              handleMessage(whatsapp, data, channel, whatsapp.companyId);
+            }
           });
         }
       });

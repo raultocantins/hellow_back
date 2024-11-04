@@ -1,6 +1,8 @@
 import AppError from "../../errors/AppError";
+import Contact from "../../models/Contact";
 import Message from "../../models/Message";
 import Ticket from "../../models/Ticket";
+import { sendText } from "./graphAPI";
 
 const DeleteWhatsAppMessage = async (messageId: string): Promise<Message> => {
   const message = await Message.findByPk(messageId, {
@@ -8,7 +10,12 @@ const DeleteWhatsAppMessage = async (messageId: string): Promise<Message> => {
       {
         model: Ticket,
         as: "ticket",
-        include: ["contact"]
+        include: ["whatsapp", "user"]
+      },
+      {
+        model: Contact,
+        as: "contact",
+        attributes: ["number"]
       }
     ]
   });
@@ -18,25 +25,17 @@ const DeleteWhatsAppMessage = async (messageId: string): Promise<Message> => {
   }
 
   const { ticket } = message;
-
-  // const messageToDelete = await GetWbotMessage(ticket, messageId);
-
+  const userName = ticket.user.name;
   try {
-    // const wbot = await GetTicketWbot(ticket);
-    // const messageDelete = messageToDelete as proto.WebMessageInfo;
-
-
-    // const menssageDelete = messageToDelete as Message;
-
-    // await (wbot as WASocket).sendMessage(menssageDelete.remoteJid, {
-    //   delete: {
-    //     id: menssageDelete.id,
-    //     remoteJid: menssageDelete.remoteJid,
-    //     participant: menssageDelete.participant,
-    //     fromMe: menssageDelete.fromMe
-    //   }
-    // });
-
+    await sendText(
+      message.contact.number,
+      `🔺 *MENSAGEM REMOVIDA:* \n~${message.body
+        .replace(`*${userName}:*`, "")
+        .trim()}~`,
+      ticket.whatsapp.facebookUserToken,
+      ticket.whatsapp.phone,
+      message.id
+    );
   } catch (err) {
     throw new AppError("ERR_DELETE_WAPP_MSG");
   }

@@ -10,9 +10,9 @@ import Whatsapp from "../models/Whatsapp";
 
 import ListMessagesService from "../services/MessageServices/ListMessagesService";
 import ShowTicketService from "../services/TicketServices/ShowTicketService";
-import DeleteWhatsAppMessage from "../services/WbotServices/DeleteWhatsAppMessage";
+import DeleteWhatsAppMessage from "../services/MetaServices/DeleteWhatsAppMessage";
 import CheckContactNumber from "../services/WbotServices/CheckNumber";
-import EditWhatsAppMessage from "../services/WbotServices/EditWhatsAppMessage";
+import EditWhatsAppMessage from "../services/MetaServices/EditWhatsAppMessage";
 
 import { sendWhatsappMessageMedia } from "../services/MetaServices/sendWhatsappMessageMedia";
 import SendWhatsAppMessage from "../services/MetaServices/sendWhatsappMessage";
@@ -58,7 +58,7 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
     queues
   });
 
-  if (ticket.channel === "whatsapp" && markAsRead === "true") {
+  if (ticket.channel === "facebook" && markAsRead === "true") {
     SetTicketMessagesAsRead(ticket);
   }
 

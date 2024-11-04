@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import Whatsapp from "../models/Whatsapp";
-import { handleMessage } from "../services/MetaServices/graphMessageListener";
+import { handleMessage, handleStatusMessage } from "../services/MetaServices/graphMessageListener";
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
   const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "whaticket";
@@ -41,6 +41,9 @@ export const webHook = async (
           entry.changes?.forEach((data: any) => {
             if (data.value.messages) {
               handleMessage(whatsapp, data, channel, whatsapp.companyId);
+            }
+            if (data.value.statuses) {
+              handleStatusMessage(data);
             }
           });
         }

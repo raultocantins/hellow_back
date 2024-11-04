@@ -2,17 +2,18 @@ import { cacheLayer } from "../libs/cache";
 import { getIO } from "../libs/socket";
 import Message from "../models/Message";
 import Ticket from "../models/Ticket";
+import Whatsapp from "../models/Whatsapp";
+import { markSeen } from "../services/MetaServices/graphAPI";
 import { logger } from "../utils/logger";
 
 const SetTicketMessagesAsRead = async (ticket: Ticket): Promise<void> => {
   await ticket.update({ unreadMessages: 0 });
   await cacheLayer.set(`contacts:${ticket.contactId}:unreads`, "0");
   let companyId: number;
-
   try {
-
     const messages = await Message.findAll({
-      attributes: ["id", "companyId", "dataJson"],
+      include: [{ model: Ticket, as: "ticket", attributes: ["whatsappId"] }],
+      attributes: ["id", "companyId"],
       where: {
         ticketId: ticket.id,
         fromMe: false,
@@ -24,46 +25,17 @@ const SetTicketMessagesAsRead = async (ticket: Ticket): Promise<void> => {
     if (messages.length === 0) return;
 
     companyId = messages[0]?.companyId;
+    const whatsapp = await Whatsapp.findOne({
+      where: {
+        id: messages[0].ticket.whatsappId
+      }
+    });
 
-    // const messageKeys = messages
-    //   .map(m => {
-    //     const message: proto.IWebMessageInfo = JSON.parse(m.dataJson);
-    //     return message.key;
-    //   })
-    //   .filter(key => key !== undefined);
-
-    // logger.debug(
-    //   { messageKeys, ticketId: ticket.id },
-    //   `Marking ${messageKeys.length} messages of ticket ${ticket.id} as read`
-    // );
-
-    // // Process message keys in batches of 250
-    // const batchSize = 250;
-    // for (let i = 0; i < messageKeys.length; i += batchSize) {
-    //   const batch = messageKeys.slice(i, i + batchSize);
-    //   (wbot as WASocket).readMessages(batch).catch(err => {
-    //     logger.error(
-    //       { error: err as Error },
-    //       `Could not mark messages as read. Err: ${err?.message}`
-    //     );
-    //   });
-    // }
-
-    // const lastMessage: proto.IWebMessageInfo = JSON.parse(messages[0].dataJson);
-    // if (lastMessage?.key?.remoteJid && !lastMessage.key.fromMe) {
-    //   // Asynchronous chatModify call
-    //   (wbot as WASocket)
-    //     .chatModify(
-    //       { markRead: true, lastMessages: [lastMessage] },
-    //       lastMessage.key.remoteJid
-    //     )
-    //     .catch(err => {
-    //       logger.error(
-    //         { error: err as Error },
-    //         `Could not modify chat. Err: ${err?.message}`
-    //       );
-    //     });
-    // }
+    await Promise.all(
+      messages.map(message =>
+        markSeen(whatsapp.phone, whatsapp.facebookUserToken, message.id)
+      )
+    );
 
     await Message.update(
       { read: true },

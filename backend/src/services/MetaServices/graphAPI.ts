@@ -10,13 +10,20 @@ const apiBase = (token: string) =>
     }
   });
 
-export const markSeen = async (id: string, token: string): Promise<void> => {
-  await apiBase(token).post(`${id}/messages`, {
-    recipient: {
-      id
-    },
-    sender_action: "mark_seen"
-  });
+export const markSeen = async (
+  id: string,
+  token: string,
+  messageId: string
+): Promise<void> => {
+  try {
+    await apiBase(token).post(`${id}/messages`, {
+      messaging_product: "whatsapp",
+      status: "read",
+      message_id: messageId
+    });
+  } catch (err) {
+    console.log(err);
+  }
 };
 
 export const sendText = async (
@@ -156,7 +163,7 @@ export async function uploadToWhatsApp(
       filename: originalname,
       type: mimetype.split("/")[0],
       filetype: mimetype.split("/")[1],
-      mediaUrl: mediaData.data.url // url da media na API do WhatsApp
+      mediaUrl: mediaData.url // url da media na API do WhatsApp
     };
   } catch (error) {
     console.error("Erro ao fazer upload para o WhatsApp:", error);

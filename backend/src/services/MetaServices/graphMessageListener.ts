@@ -86,7 +86,7 @@ export const verifyMessage = async (
     fromMe: fromMe,
     read: msg?.is_echo,
     quotedMsgId: quotedMsg?.id,
-    ack: 3,
+    ack: 0,
     dataJson: JSON.stringify(msg),
     channel: channel
   };
@@ -129,7 +129,7 @@ export const verifyMessageMedia = async (
     fromMe: fromMe,
     read: true,
     quotedMsgId: quotedMsg?.id,
-    ack: 3,
+    ack: 0,
     dataJson: JSON.stringify(msg),
     channel: channel,
     mediaUrl: mediaId,
@@ -565,7 +565,7 @@ export const handleMessage = async (
 
     await verifyMessageMedia(
       message,
-      caption,
+      caption ?? "",
       ticket,
       contact,
       companyId,
@@ -640,6 +640,57 @@ export const handleMessage = async (
         dontReadTheFirstQuestion
       );
     }
+  }
+};
+
+export const handleStatusMessage = async (webhookEvent: any): Promise<any> => {
+  const id = webhookEvent.value.statuses[0].id;
+  let ack: number;
+
+  switch (webhookEvent.value.statuses[0].status) {
+    case "sent":
+      ack = 1;
+      break;
+    case "delivered":
+      ack = 2;
+      break;
+    case "read":
+      ack = 3;
+      break;
+    default:
+      ack = 0;
+      break;
+  }
+
+  await new Promise(r => {
+    setTimeout(r, 500);
+  });
+  const io = getIO();
+
+  try {
+    const messageToUpdate = await Message.findByPk(id, {
+      include: [
+        "contact",
+        {
+          model: Message,
+          as: "quotedMsg",
+          include: ["contact"]
+        }
+      ]
+    });
+
+    if (!messageToUpdate) return;
+
+    await messageToUpdate.update({ ack: ack });
+    io.to(messageToUpdate.ticketId.toString()).emit(
+      `company-${messageToUpdate.companyId}-appMessage`,
+      {
+        action: "update",
+        message: messageToUpdate
+      }
+    );
+  } catch (e) {
+    console.log(e);
   }
 };
 

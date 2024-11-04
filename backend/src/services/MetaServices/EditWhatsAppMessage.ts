@@ -4,6 +4,8 @@ import OldMessage from "../../models/OldMessage";
 import Ticket from "../../models/Ticket";
 
 import formatBody from "../../helpers/Mustache";
+import { sendText } from "./graphAPI";
+import Contact from "../../models/Contact";
 
 interface Request {
   messageId: string;
@@ -25,7 +27,12 @@ const EditWhatsAppMessage = async ({
       {
         model: Ticket,
         as: "ticket",
-        include: ["contact"]
+        include: ["whatsapp", "user"]
+      },
+      {
+        model: Contact,
+        as: "contact",
+        attributes: ["number"]
       }
     ]
   });
@@ -35,22 +42,17 @@ const EditWhatsAppMessage = async ({
   }
 
   const { ticket } = message;
-
-  // const wbot = await GetTicketWbot(ticket);
-
-  const msg = JSON.parse(message.dataJson);
   const formattedBody = formatBody(body, ticket.contact);
+  const userName = ticket.user.name;
 
   try {
-    // await wbot.sendMessage(
-    //   message.remoteJid,
-    //   {
-    //     text: formattedBody,
-    //     edit: msg.key
-    //   },
-    //   {}
-    // );
-
+    await sendText(
+      message.contact.number,
+      `⚠️ *MENSAGEM EDITADA:* \n${body.replace(`*${userName}:*`, "").trim()}`,
+      ticket.whatsapp.facebookUserToken,
+      ticket.whatsapp.phone,
+      messageId
+    );
     const oldMessage = {
       messageId,
       body: message.body,

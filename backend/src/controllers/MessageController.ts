@@ -11,7 +11,6 @@ import Whatsapp from "../models/Whatsapp";
 import ListMessagesService from "../services/MessageServices/ListMessagesService";
 import ShowTicketService from "../services/TicketServices/ShowTicketService";
 import DeleteWhatsAppMessage from "../services/MetaServices/DeleteWhatsAppMessage";
-import CheckContactNumber from "../services/WbotServices/CheckNumber";
 import EditWhatsAppMessage from "../services/MetaServices/EditWhatsAppMessage";
 
 import { sendWhatsappMessageMedia } from "../services/MetaServices/sendWhatsappMessageMedia";
@@ -157,74 +156,4 @@ export const remove = async (
   });
 
   return res.send();
-};
-
-export const send = async (req: Request, res: Response): Promise<Response> => {
-  const { whatsappId } = req.params;
-  const messageData: MessageData = req.body;
-  const medias = req.files as Express.Multer.File[];
-
-  if (messageData.number === undefined) {
-    throw new AppError("ERR_SYNTAX", 400);
-  }
-  const whatsapp = await Whatsapp.findByPk(whatsappId);
-
-  if (!whatsapp) {
-    throw new AppError("ERR_WHATSAPP_NOT_FOUND", 404);
-  }
-
-  try {
-    const numberToTest = messageData.number;
-    const { body } = messageData;
-
-    const { companyId } = whatsapp;
-
-    const CheckValidNumber = await CheckContactNumber(numberToTest, companyId);
-    const number = CheckValidNumber.jid.replace(/\D/g, "");
-
-    if (medias) {
-      await Promise.all(
-        medias.map(async (media: Express.Multer.File) => {
-          await req.app.get("queues").messageQueue.add(
-            "SendMessage",
-            {
-              whatsappId,
-              data: {
-                number,
-                body: media.originalname,
-                mediaPath: media.path
-              }
-            },
-            { removeOnComplete: true, attempts: 3 }
-          );
-        })
-      );
-    } else {
-      req.app.get("queues").messageQueue.add(
-        "SendMessage",
-        {
-          whatsappId,
-          data: {
-            number,
-            body
-          }
-        },
-
-        { removeOnComplete: false, attempts: 3 }
-      );
-    }
-
-    return res.send({ mensagem: "Message added to queue" });
-  } catch (err) {
-    const error = { errType: typeof err, serialized: JSON.stringify(err), err };
-    if (err?.message) {
-      console.error(error, `MessageController.send: ${err.message}`);
-    } else {
-      logger.error(
-        error,
-        "MessageController.send: Failed to put message on queue"
-      );
-    }
-    throw new AppError("ERR_INTERNAL_ERROR", 500);
-  }
 };

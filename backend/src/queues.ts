@@ -2,8 +2,7 @@ import * as Sentry from "@sentry/node";
 import Queue from "bull";
 import moment from "moment";
 import { Op, QueryTypes } from "sequelize";
-import { isEmpty, isNil, isArray } from "lodash";
-import path from "path";
+import { isEmpty, isNil } from "lodash";
 import { CronJob } from "cron";
 import { MessageData, SendMessage } from "./helpers/SendMessage";
 import Whatsapp from "./models/Whatsapp";
@@ -11,14 +10,8 @@ import { logger } from "./utils/logger";
 import Schedule from "./models/Schedule";
 import Contact from "./models/Contact";
 import GetDefaultWhatsApp from "./helpers/GetDefaultWhatsApp";
-import Campaign from "./models/Campaign";
-import ContactList from "./models/ContactList";
-import ContactListItem from "./models/ContactListItem";
 import CampaignSetting from "./models/CampaignSetting";
-import CampaignShipping from "./models/CampaignShipping";
-// import GetWhatsappWbot from "./helpers/GetWhatsappWbot";
 import sequelize from "./database";
-import { getIO } from "./libs/socket";
 import User from "./models/User";
 import Company from "./models/Company";
 import Plan from "./models/Plan";
@@ -195,42 +188,6 @@ async function handleVerifyCampaigns() {
   });
 }
 
-async function getCampaign(id: number) {
-  return Campaign.findByPk(id, {
-    include: [
-      {
-        model: ContactList,
-        as: "contactList",
-        attributes: ["id", "name"],
-        include: [
-          {
-            model: ContactListItem,
-            as: "contacts",
-            attributes: ["id", "name", "number", "email", "isWhatsappValid"],
-            where: { isWhatsappValid: true }
-          }
-        ]
-      },
-      {
-        model: Whatsapp,
-        as: "whatsapp",
-        attributes: ["id", "name"]
-      },
-      {
-        model: CampaignShipping,
-        as: "shipping",
-        include: [{ model: ContactListItem, as: "contact" }]
-      }
-    ]
-  });
-}
-
-async function getContact(id) {
-  return ContactListItem.findByPk(id, {
-    attributes: ["id", "name", "number", "email"]
-  });
-}
-
 async function getSettings(campaign) {
   const settings = await CampaignSetting.findAll({
     where: { companyId: campaign.companyId },
@@ -380,212 +337,6 @@ function getProcessedMessage(msg: string, variables: any[], contact: any) {
 export function randomValue(min, max) {
   return Math.floor(Math.random() * max) + min;
 }
-
-async function verifyAndFinalizeCampaign(campaign) {
-  const { contacts } = campaign.contactList;
-
-  const count1 = contacts.length;
-  const count2 = await CampaignShipping.count({
-    where: {
-      campaignId: campaign.id,
-      deliveredAt: {
-        [Op.not]: null
-      }
-    }
-  });
-
-  if (count1 === count2) {
-    await campaign.update({ status: "FINALIZADA", completedAt: moment() });
-  }
-
-  const io = getIO();
-  io.emit(`company-${campaign.companyId}-campaign`, {
-    record: campaign
-  });
-}
-
-async function handleProcessCampaign(job) {
-  try {
-    const { id }: ProcessCampaignData = job.data;
-    let { delay }: ProcessCampaignData = job.data;
-    const campaign = await getCampaign(id);
-    const settings = await getSettings(campaign);
-    if (campaign) {
-      const { contacts } = campaign.contactList;
-      if (isArray(contacts)) {
-        let index = 0;
-        contacts.forEach(contact => {
-          campaignQueue.add(
-            "PrepareContact",
-            {
-              contactId: contact.id,
-              campaignId: campaign.id,
-              variables: settings.variables,
-              delay: delay || 0
-            },
-            {
-              removeOnComplete: true
-            }
-          );
-
-          logger.info(
-            `Registro enviado pra fila de disparo: Campanha=${campaign.id};Contato=${contact.name};delay=${delay}`
-          );
-          index += 1;
-          if (index % settings.longerIntervalAfter === 0) {
-            // intervalo maior após intervalo configurado de mensagens
-            delay += parseToMilliseconds(settings.greaterInterval);
-          } else {
-            delay += parseToMilliseconds(
-              randomValue(0, settings.messageInterval)
-            );
-          }
-        });
-        await campaign.update({ status: "EM_ANDAMENTO" });
-      }
-    }
-  } catch (err: unknown) {
-    Sentry.captureException(err);
-  }
-}
-
-async function handlePrepareContact(job: { data: PrepareContactData }) {
-  try {
-    const { contactId, campaignId, delay, variables } = job.data;
-    const campaign = await getCampaign(campaignId);
-    const contact = await getContact(contactId);
-
-    const campaignShipping: any = {};
-    campaignShipping.number = contact.number;
-    campaignShipping.contactId = contactId;
-    campaignShipping.campaignId = campaignId;
-
-    const messages = getCampaignValidMessages(campaign);
-    if (messages.length) {
-      const radomIndex = randomValue(0, messages.length);
-      const message = getProcessedMessage(
-        messages[radomIndex],
-        variables,
-        contact
-      );
-      campaignShipping.message = `${message}`;
-    }
-
-    if (campaign.confirmation) {
-      const confirmationMessages =
-        getCampaignValidConfirmationMessages(campaign);
-      if (confirmationMessages.length) {
-        const radomIndex = randomValue(0, confirmationMessages.length);
-        const message = getProcessedMessage(
-          confirmationMessages[radomIndex],
-          variables,
-          contact
-        );
-        campaignShipping.confirmationMessage = `${message}`;
-      }
-    }
-
-    const [record, created] = await CampaignShipping.findOrCreate({
-      where: {
-        campaignId: campaignShipping.campaignId,
-        contactId: campaignShipping.contactId
-      },
-      defaults: campaignShipping
-    });
-
-    if (
-      !created &&
-      record.deliveredAt === null &&
-      record.confirmationRequestedAt === null
-    ) {
-      record.set(campaignShipping);
-      await record.save();
-    }
-
-    if (
-      record.deliveredAt === null &&
-      record.confirmationRequestedAt === null
-    ) {
-      const nextJob = await campaignQueue.add(
-        "DispatchCampaign",
-        {
-          campaignId: campaign.id,
-          campaignShippingId: record.id,
-          contactListItemId: contactId
-        },
-        {
-          delay
-        }
-      );
-
-      await record.update({ jobId: `${nextJob.id}` });
-    }
-
-    await verifyAndFinalizeCampaign(campaign);
-  } catch (err: unknown) {
-    Sentry.captureException(err);
-    logger.error(
-      `campaignQueue -> PrepareContact -> error: ${(err as Error).message}`
-    );
-  }
-}
-
-async function handleDispatchCampaign(job) {
-  try {
-    const { data } = job;
-    const { campaignShippingId, campaignId }: DispatchCampaignData = data;
-    const campaign = await getCampaign(campaignId);
-    // const wbot = await GetWhatsappWbot(campaign.whatsapp);
-
-    logger.info(
-      `Disparo de campanha solicitado: Campanha=${campaignId};Registro=${campaignShippingId}`
-    );
-
-    const campaignShipping = await CampaignShipping.findByPk(
-      campaignShippingId,
-      {
-        include: [{ model: ContactListItem, as: "contact" }]
-      }
-    );
-
-    const chatId = `${campaignShipping.number}@s.whatsapp.net`;
-
-    if (campaign.confirmation && campaignShipping.confirmation === null) {
-      // await wbot.sendMessage(chatId, {
-      //   text: campaignShipping.confirmationMessage
-      // });
-      await campaignShipping.update({ confirmationRequestedAt: moment() });
-    } else {
-      // await wbot.sendMessage(chatId, {
-      //   text: campaignShipping.message
-      // });
-      if (campaign.mediaPath) {
-        const filePath = path.resolve("public", campaign.mediaPath);
-        // const options = await getMessageOptions(campaign.mediaName, filePath);
-        // if (Object.keys(options).length) {
-        //   await wbot.sendMessage(chatId, { ...options });
-        // }
-      }
-      await campaignShipping.update({ deliveredAt: moment() });
-    }
-
-    await verifyAndFinalizeCampaign(campaign);
-
-    const io = getIO();
-    io.emit(`company-${campaign.companyId}-campaign`, {
-      action: "update",
-      record: campaign
-    });
-
-    logger.info(
-      `Campanha enviada para: Campanha=${campaignId};Contato=${campaignShipping.contact.name}`
-    );
-  } catch (err: unknown) {
-    Sentry.captureException(err);
-    logger.error((err as Error).message);
-  }
-}
-
 async function handleLoginStatus() {
   const users: { id: number }[] = await sequelize.query(
     'select id from "Users" where "updatedAt" < now() - \'5 minutes\'::interval and online = true',
@@ -620,8 +371,9 @@ async function handleInvoiceCreate() {
       if (dias < 20) {
         const plan = await Plan.findByPk(c.planId);
 
-        const sql = `SELECT COUNT(*) mycount FROM "Invoices" WHERE "companyId" = ${c.id
-          } AND "dueDate"::text LIKE '${moment(dueDate).format("yyyy-MM-DD")}%';`;
+        const sql = `SELECT COUNT(*) mycount FROM "Invoices" WHERE "companyId" = ${
+          c.id
+        } AND "dueDate"::text LIKE '${moment(dueDate).format("yyyy-MM-DD")}%';`;
         const invoice: { mycount: number }[] = await sequelize.query(sql, {
           type: QueryTypes.SELECT
         });
@@ -650,12 +402,6 @@ export async function startQueueProcess() {
   sendScheduledMessages.process("SendMessage", handleSendScheduledMessage);
 
   campaignQueue.process("VerifyCampaignsDaatabase", handleVerifyCampaigns);
-
-  campaignQueue.process("ProcessCampaign", handleProcessCampaign);
-
-  campaignQueue.process("PrepareContact", handlePrepareContact);
-
-  campaignQueue.process("DispatchCampaign", handleDispatchCampaign);
 
   userMonitor.process("VerifyLoginStatus", handleLoginStatus);
 

@@ -1,7 +1,6 @@
 import { Router } from "express";
 import multer from "multer";
 import isAuth from "../middleware/isAuth";
-import tokenAuth from "../middleware/tokenAuth";
 
 import * as MessageController from "../controllers/MessageController";
 
@@ -23,12 +22,5 @@ messageRoutes.post(
 messageRoutes.post("/messages/edit/:messageId", isAuth, MessageController.edit);
 
 messageRoutes.delete("/messages/:messageId", isAuth, MessageController.remove);
-
-messageRoutes.post("/api/messages/send",
-  tokenAuth,
-  upload.array("medias"),
-  MessageController.send
-);
-
 
 export default messageRoutes;

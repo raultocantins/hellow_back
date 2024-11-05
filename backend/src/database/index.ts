@@ -21,11 +21,7 @@ import QueueOption from "../models/QueueOption";
 import Schedule from "../models/Schedule";
 import Tag from "../models/Tag";
 import TicketTag from "../models/TicketTag";
-import ContactList from "../models/ContactList";
-import ContactListItem from "../models/ContactListItem";
-import Campaign from "../models/Campaign";
 import CampaignSetting from "../models/CampaignSetting";
-import CampaignShipping from "../models/CampaignShipping";
 import Announcement from "../models/Announcement";
 import Chat from "../models/Chat";
 import ChatUser from "../models/ChatUser";
@@ -63,11 +59,7 @@ const models = [
   Schedule,
   Tag,
   TicketTag,
-  ContactList,
-  ContactListItem,
-  Campaign,
   CampaignSetting,
-  CampaignShipping,
   Announcement,
   Chat,
   ChatUser,

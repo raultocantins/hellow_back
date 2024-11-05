@@ -9,9 +9,7 @@ import UpdateContactService from "../services/ContactServices/UpdateContactServi
 import DeleteContactService from "../services/ContactServices/DeleteContactService";
 import GetContactService from "../services/ContactServices/GetContactService";
 
-import CheckContactNumber from "../services/WbotServices/CheckNumber";
 import CheckIsValidContact from "../services/WbotServices/CheckIsValidContact";
-import GetProfilePicUrl from "../services/WbotServices/GetProfilePicUrl";
 import AppError from "../errors/AppError";
 import SimpleListService, {
   SearchContactParams
@@ -87,26 +85,19 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
   }
 
   await CheckIsValidContact(newContact.number, companyId);
-  const validNumber = await CheckContactNumber(newContact.number, companyId);
-  const number = validNumber.jid.replace(/\D/g, "");
-  newContact.number = number;
-
-  /**
-   * Código desabilitado por demora no retorno
-   */
-  // const profilePicUrl = await GetProfilePicUrl(validNumber.jid, companyId);
-
   const contact = await CreateContactService({
     ...newContact,
-    // profilePicUrl,
     companyId
   });
 
   const io = getIO();
-  io.to(`company-${companyId}-mainchannel`).emit(`company-${companyId}-contact`, {
-    action: "create",
-    contact
-  });
+  io.to(`company-${companyId}-mainchannel`).emit(
+    `company-${companyId}-contact`,
+    {
+      action: "create",
+      contact
+    }
+  );
 
   return res.status(200).json(contact);
 };
@@ -141,11 +132,6 @@ export const update = async (
     throw new AppError(err.message);
   }
 
-  await CheckIsValidContact(contactData.number, companyId);
-  const validNumber = await CheckContactNumber(contactData.number, companyId);
-  const number = validNumber.jid.replace(/\D/g, "");
-  contactData.number = number;
-
   const { contactId } = req.params;
 
   const contact = await UpdateContactService({
@@ -155,10 +141,13 @@ export const update = async (
   });
 
   const io = getIO();
-  io.to(`company-${companyId}-mainchannel`).emit(`company-${companyId}-contact`, {
-    action: "update",
-    contact
-  });
+  io.to(`company-${companyId}-mainchannel`).emit(
+    `company-${companyId}-contact`,
+    {
+      action: "update",
+      contact
+    }
+  );
 
   return res.status(200).json(contact);
 };
@@ -175,10 +164,13 @@ export const remove = async (
   await DeleteContactService(contactId);
 
   const io = getIO();
-  io.to(`company-${companyId}-mainchannel`).emit(`company-${companyId}-contact`, {
-    action: "delete",
-    contactId
-  });
+  io.to(`company-${companyId}-mainchannel`).emit(
+    `company-${companyId}-contact`,
+    {
+      action: "delete",
+      contactId
+    }
+  );
 
   return res.status(200).json({ message: "Contact deleted" });
 };

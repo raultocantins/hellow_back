@@ -6,12 +6,6 @@ import ShowTicketService from "./ShowTicketService";
 import FindOrCreateATicketTrakingService from "./FindOrCreateATicketTrakingService";
 import Setting from "../../models/Setting";
 
-interface TicketData {
-  status?: string;
-  companyId?: number;
-  unreadMessages?: number;
-}
-
 const FindOrCreateTicketServiceMeta = async (
   contact: Contact,
   whatsappId: number,
@@ -63,7 +57,7 @@ const FindOrCreateTicketServiceMeta = async (
     const msgIsGroupBlock = await Setting.findOne({
       where: { key: "timeCreateNewTicket" }
     });
-  
+
     const value = msgIsGroupBlock ? parseInt(msgIsGroupBlock.value, 10) : 7200;
   }
 
@@ -98,7 +92,7 @@ const FindOrCreateTicketServiceMeta = async (
 
   if (!ticket) {
     ticket = await Ticket.create({
-      contactId:contact.id,
+      contactId: contact.id,
       status: "pending",
       isGroup: false,
       unreadMessages,
@@ -114,13 +108,11 @@ const FindOrCreateTicketServiceMeta = async (
       userId: ticket.userId,
       channel
     });
-    
   } else {
     await ticket.update({ whatsappId });
   }
 
   ticket = await ShowTicketService(ticket.id, companyId);
-
   return ticket;
 };
 

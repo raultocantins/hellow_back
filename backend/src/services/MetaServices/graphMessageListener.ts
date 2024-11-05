@@ -502,8 +502,6 @@ export const handleMessage = async (
   }
   const fromMe = message.from === whatsapp.phone;
 
-  //atualizar nome e imagem do contato aqui
-
   const contact = await verifyContact(msgContact, companyId, channel);
 
   const unreadCount = fromMe ? 0 : 1;

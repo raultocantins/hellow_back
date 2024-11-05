@@ -125,17 +125,6 @@ export const sendMediaFromUrl = async (
     console.log(error);
   }
 };
-
-export const getProfile = async (id: string, token: string): Promise<any> => {
-  try {
-    const { data } = await apiBase(token).get(id);
-
-    return data;
-  } catch (error) {
-    throw new Error("ERR_FETCHING_FB_USER_PROFILE_2");
-  }
-};
-
 // Função para fazer upload de arquivos em memória para a API do WhatsApp
 export async function uploadToWhatsApp(
   buffer: Buffer,

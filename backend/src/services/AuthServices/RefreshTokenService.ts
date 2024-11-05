@@ -9,6 +9,7 @@ import {
   createAccessToken,
   createRefreshToken
 } from "../../helpers/CreateTokens";
+import { logger } from "../../utils/logger";
 
 interface RefreshTokenPayload {
   id: string;
@@ -42,6 +43,7 @@ export const RefreshTokenService = async (
 
     return { user, newToken, refreshToken };
   } catch (err) {
+    logger.error(err)
     res.clearCookie("jrt");
     throw new AppError("ERR_SESSION_EXPIRED", 401);
   }

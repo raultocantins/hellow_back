@@ -3,6 +3,7 @@ import * as Yup from "yup";
 import AppError from "../../errors/AppError";
 import Queue from "../../models/Queue";
 import ShowQueueService from "./ShowQueueService";
+import { logger } from "../../utils/logger";
 
 interface QueueData {
   name?: string;
@@ -63,6 +64,7 @@ const UpdateQueueService = async (
   try {
     await queueSchema.validate({ color, name });
   } catch (err: any) {
+    logger.error(err)
     throw new AppError(err.message);
   }
 

@@ -15,6 +15,7 @@ import SimpleListService, {
   SearchContactParams
 } from "../services/ContactServices/SimpleListService";
 import ContactCustomField from "../models/ContactCustomField";
+import { logger } from "../utils/logger";
 
 type IndexQuery = {
   searchParam: string;
@@ -81,6 +82,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
   try {
     await schema.validate(newContact);
   } catch (err: any) {
+    logger.error(err)
     throw new AppError(err.message);
   }
 
@@ -129,6 +131,7 @@ export const update = async (
   try {
     await schema.validate(contactData);
   } catch (err: any) {
+    logger.error(err)
     throw new AppError(err.message);
   }
 

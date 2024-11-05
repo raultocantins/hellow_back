@@ -11,6 +11,7 @@ import fs from "fs";
 import path from "path";
 import AppError from "../errors/AppError";
 import QueueOption from "../models/QueueOption";
+import { logger } from "../utils/logger";
 
 type FilterList = {
   queueId: string;
@@ -92,6 +93,7 @@ export const mediaUpload = async (
    
     return res.send({ mensagem: "Arquivo Salvo" });
   } catch (err: any) {
+    logger.error(err)
     throw new AppError(err.message);
   }
 };
@@ -115,6 +117,7 @@ export const deleteMedia = async (
     await queue.save();
     return res.send({ mensagem: "Arquivo excluído" });
   } catch (err: any) {
+    logger.error(err)
     throw new AppError(err.message);
   }
 };

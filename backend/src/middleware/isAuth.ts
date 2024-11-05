@@ -2,6 +2,7 @@ import { verify } from "jsonwebtoken";
 import { Request, Response, NextFunction } from "express";
 import AppError from "../errors/AppError";
 import authConfig from "../config/auth";
+import { logger } from "../utils/logger";
 
 interface TokenPayload {
   id: string;
@@ -36,6 +37,7 @@ const isAuth = (req: Request, res: Response, next: NextFunction): void => {
       companyId: req.tokenData.companyId
     };
   } catch (err) {
+    logger.error(err)
     throw new AppError("Invalid token. We'll try to assign a new one on next request", 403 );
   }
 

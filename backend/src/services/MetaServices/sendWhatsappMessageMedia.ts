@@ -1,6 +1,7 @@
 import AppError from "../../errors/AppError";
 import Message from "../../models/Message";
 import Ticket from "../../models/Ticket";
+import { logger } from "../../utils/logger";
 import { sendMediaFromUrl } from "./graphAPI";
 
 interface Media {
@@ -51,6 +52,7 @@ export const sendWhatsappMessageMedia = async ({
       }
     };
   } catch (err) {
+    logger.error(err)
     throw new AppError("ERR_SENDING_FACEBOOK_MSG");
   }
 };

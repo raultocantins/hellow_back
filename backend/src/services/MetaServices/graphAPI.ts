@@ -1,6 +1,7 @@
 import axios from "axios";
 import FormData from "form-data";
 import Ticket from "../../models/Ticket";
+import { logger } from "../../utils/logger";
 
 const apiBase = (token: string) =>
   axios.create({
@@ -22,7 +23,7 @@ export const markSeen = async (
       message_id: messageId
     });
   } catch (err) {
-    console.log(err);
+    logger.error(err);
   }
 };
 
@@ -57,8 +58,7 @@ export const sendText = async (
 
     return data;
   } catch (error) {
-    console.log(error);
-    //
+    logger.error(error);
   }
 };
 
@@ -122,7 +122,7 @@ export const sendMediaFromUrl = async (
 
     return { ...data, mediaType: messageData.type };
   } catch (error) {
-    console.log(error);
+    logger.error(error);
   }
 };
 // Função para fazer upload de arquivos em memória para a API do WhatsApp
@@ -155,7 +155,7 @@ export async function uploadToWhatsApp(
       mediaUrl: mediaData.url // url da media na API do WhatsApp
     };
   } catch (error) {
-    console.error("Erro ao fazer upload para o WhatsApp:", error);
+    logger.error("Erro ao fazer upload para o WhatsApp:", error);
     throw error;
   }
 }
@@ -169,7 +169,7 @@ export async function getMediaData(id: string, token: string) {
       filetype: data.mime_type.split("/")[1]
     };
   } catch (error) {
-    console.error("Erro ao buscar os dados da media:", error);
+    logger.error("Erro ao buscar os dados da media:", error);
     throw error;
   }
 }

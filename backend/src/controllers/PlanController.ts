@@ -9,6 +9,7 @@ import UpdatePlanService from "../services/PlanService/UpdatePlanService";
 import ShowPlanService from "../services/PlanService/ShowPlanService";
 import FindAllPlanService from "../services/PlanService/FindAllPlanService";
 import DeletePlanService from "../services/PlanService/DeletePlanService";
+import { logger } from "../utils/logger";
 
 type IndexQuery = {
   searchParam: string;
@@ -68,6 +69,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
   try {
     await schema.validate(newPlan);
   } catch (err) {
+    logger.error(err)
     throw new AppError(err.message);
   }
 
@@ -97,6 +99,7 @@ export const update = async (
   try {
     await schema.validate(planData);
   } catch (err) {
+    logger.error(err)
     throw new AppError(err.message);
   }
 

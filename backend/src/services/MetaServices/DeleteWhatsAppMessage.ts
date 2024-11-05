@@ -2,6 +2,7 @@ import AppError from "../../errors/AppError";
 import Contact from "../../models/Contact";
 import Message from "../../models/Message";
 import Ticket from "../../models/Ticket";
+import { logger } from "../../utils/logger";
 import { sendText } from "./graphAPI";
 
 const DeleteWhatsAppMessage = async (messageId: string): Promise<Message> => {
@@ -37,6 +38,7 @@ const DeleteWhatsAppMessage = async (messageId: string): Promise<Message> => {
       message.id
     );
   } catch (err) {
+    logger.error(err)
     throw new AppError("ERR_DELETE_WAPP_MSG");
   }
   await message.update({ isDeleted: true });

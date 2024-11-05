@@ -1,6 +1,7 @@
 import * as Yup from "yup";
 import AppError from "../../errors/AppError";
 import Help from "../../models/Help";
+import { logger } from "../../utils/logger";
 
 interface Data {
   title: string;
@@ -22,6 +23,7 @@ const CreateService = async (data: Data): Promise<Help> => {
   try {
     await helpSchema.validate({ title, description });
   } catch (err) {
+    logger.error(err)
     throw new AppError(err.message);
   }
 

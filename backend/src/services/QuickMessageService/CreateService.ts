@@ -1,6 +1,7 @@
 import * as Yup from "yup";
 import AppError from "../../errors/AppError";
 import QuickMessage from "../../models/QuickMessage";
+import { logger } from "../../utils/logger";
 
 interface Data {
   shortcode: string;
@@ -24,6 +25,7 @@ const CreateService = async (data: Data): Promise<QuickMessage> => {
   try {
     await ticketnoteSchema.validate({ shortcode, message });
   } catch (err: any) {
+    logger.error(err)
     throw new AppError(err.message);
   }
 

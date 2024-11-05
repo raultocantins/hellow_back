@@ -2,6 +2,7 @@ import Whatsapp from "../models/Whatsapp";
 import fs from "fs";
 import sendWhatsappMessage from "../services/MetaServices/sendWhatsappMessage";
 import { sendWhatsappMessageMedia } from "../services/MetaServices/sendWhatsappMessageMedia";
+import { logger } from "../utils/logger";
 
 export type MessageData = {
   number: number | string;
@@ -30,6 +31,7 @@ export const SendMessage = async (
 
     return message;
   } catch (err: any) {
+    logger.error(err)
     throw new Error(err);
   }
 };

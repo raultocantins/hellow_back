@@ -3,6 +3,7 @@ import * as Yup from "yup";
 import AppError from "../../errors/AppError";
 import Tag from "../../models/Tag";
 import ShowService from "./ShowService";
+import { logger } from "../../utils/logger";
 
 interface TagData {
   id?: number;
@@ -31,6 +32,7 @@ const UpdateUserService = async ({
   try {
     await schema.validate({ name });
   } catch (err: any) {
+    logger.error(err)
     throw new AppError(err.message);
   }
 

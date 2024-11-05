@@ -3,6 +3,7 @@ import AppError from "../../errors/AppError";
 import Company from "../../models/Company";
 import User from "../../models/User";
 import Setting from "../../models/Setting";
+import { logger } from "../../utils/logger";
 
 interface CompanyData {
   name: string;
@@ -54,6 +55,7 @@ const CreateCompanyService = async (
   try {
     await companySchema.validate({ name });
   } catch (err: any) {
+    logger.error(err)
     throw new AppError(err.message);
   }
 

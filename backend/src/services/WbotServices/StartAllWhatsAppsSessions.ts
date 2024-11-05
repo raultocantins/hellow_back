@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/node";
 import ListWhatsAppsService from "../WhatsappService/ListWhatsAppsService";
+import { logger } from "../../utils/logger";
 
 export const StartAllWhatsAppsSessions = async (
   companyId: number
@@ -10,7 +11,8 @@ export const StartAllWhatsAppsSessions = async (
     await Promise.all(
       whatsapps.map(whatsapp => whatsapp.update({ status: "CONNECTED" }))
     );
-  } catch (e) {
-    Sentry.captureException(e);
+  } catch (err) {
+    logger.error(err)
+    Sentry.captureException(err);
   }
 };

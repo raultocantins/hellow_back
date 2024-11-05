@@ -2,6 +2,7 @@ import * as Yup from "yup";
 
 import AppError from "../../errors/AppError";
 import Tag from "../../models/Tag";
+import { logger } from "../../utils/logger";
 
 interface Request {
   name: string;
@@ -23,6 +24,7 @@ const CreateService = async ({
   try {
     await schema.validate({ name });
   } catch (err: any) {
+    logger.error(err)
     throw new AppError(err.message);
   }
 

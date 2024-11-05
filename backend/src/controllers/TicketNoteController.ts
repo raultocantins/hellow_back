@@ -10,6 +10,7 @@ import ShowTicketNoteService from "../services/TicketNoteService/ShowTicketNoteS
 import FindAllTicketNotesService from "../services/TicketNoteService/FindAllTicketNotesService";
 import DeleteTicketNoteService from "../services/TicketNoteService/DeleteTicketNoteService";
 import FindNotesByContactIdAndTicketId from "../services/TicketNoteService/FindNotesByContactIdAndTicketId";
+import { logger } from "../utils/logger";
 
 type IndexQuery = {
   searchParam: string;
@@ -65,6 +66,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
   try {
     await schema.validate(newTicketNote);
   } catch (err) {
+    logger.error(err)
     throw new AppError(err.message);
   }
 
@@ -97,6 +99,7 @@ export const update = async (
   try {
     await schema.validate(ticketNote);
   } catch (err) {
+    logger.error(err)
     throw new AppError(err.message);
   }
 
@@ -133,6 +136,7 @@ export const findFilteredList = async (
 
     return res.status(200).json(notes);
   } catch (e) {
+    logger.error(e)
     return res.status(500).json({ message: e });
   }
 };

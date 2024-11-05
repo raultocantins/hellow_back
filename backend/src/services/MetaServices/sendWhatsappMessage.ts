@@ -3,6 +3,7 @@ import Message from "../../models/Message";
 import Ticket from "../../models/Ticket";
 import { sendText } from "./graphAPI";
 import formatBody from "../../helpers/Mustache";
+import { logger } from "../../utils/logger";
 
 interface Request {
   body: string;
@@ -39,6 +40,7 @@ const SendWhatsAppMessage = async ({
       }
     };
   } catch (err) {
+    logger.error(err)
     throw new AppError("ERR_SENDING_FACEBOOK_MSG");
   }
 };

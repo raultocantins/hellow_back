@@ -5,6 +5,7 @@ import { SerializeUser } from "../../helpers/SerializeUser";
 import User from "../../models/User";
 import Plan from "../../models/Plan";
 import Company from "../../models/Company";
+import { logger } from "../../utils/logger";
 
 interface Request {
   email: string;
@@ -75,6 +76,7 @@ const CreateUserService = async ({
   try {
     await schema.validate({ email, password, name });
   } catch (err) {
+    logger.error(err)
     throw new AppError(err.message);
   }
 

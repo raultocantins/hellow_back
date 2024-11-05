@@ -3,6 +3,7 @@ import * as Yup from "yup";
 import AppError from "../../errors/AppError";
 import Schedule from "../../models/Schedule";
 import Contact from "../../models/Contact";
+import { logger } from "../../utils/logger";
 
 interface Request {
   body: string;
@@ -27,6 +28,7 @@ const CreateService = async ({
   try {
     await schema.validate({ body, sendAt });
   } catch (err) {
+    logger.error(err)
     throw new AppError(err.message);
   }
 

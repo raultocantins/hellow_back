@@ -12,6 +12,7 @@ import FindService from "../services/QuickMessageService/FindService";
 import QuickMessage from "../models/QuickMessage";
 
 import AppError from "../errors/AppError";
+import { logger } from "../utils/logger";
 
 type IndexQuery = {
   searchParam: string;
@@ -51,6 +52,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
   try {
     await schema.validate(data);
   } catch (err: any) {
+    logger.error(err)
     throw new AppError(err.message);
   }
 
@@ -92,6 +94,7 @@ export const update = async (
   try {
     await schema.validate(data);
   } catch (err: any) {
+    logger.error(err)
     throw new AppError(err.message);
   }
 

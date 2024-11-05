@@ -1,4 +1,5 @@
 import { QueryInterface, DataTypes } from "sequelize";
+import { logger } from "../../utils/logger";
 
 module.exports = {
   up: async (queryInterface: QueryInterface) => {
@@ -20,6 +21,7 @@ module.exports = {
       });
       await transaction.commit();
     } catch (err) {
+      logger.error(err)
       await transaction.rollback();
       throw err;
     }

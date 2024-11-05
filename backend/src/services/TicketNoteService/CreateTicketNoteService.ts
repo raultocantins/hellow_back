@@ -1,6 +1,7 @@
 import * as Yup from "yup";
 import AppError from "../../errors/AppError";
 import TicketNote from "../../models/TicketNote";
+import { logger } from "../../utils/logger";
 
 interface TicketNoteData {
   note: string;
@@ -23,6 +24,7 @@ const CreateTicketNoteService = async (
   try {
     await ticketnoteSchema.validate({ note });
   } catch (err) {
+    logger.error(err)
     throw new AppError(err.message);
   }
 

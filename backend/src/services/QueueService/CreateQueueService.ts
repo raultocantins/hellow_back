@@ -3,6 +3,7 @@ import AppError from "../../errors/AppError";
 import Queue from "../../models/Queue";
 import Company from "../../models/Company";
 import Plan from "../../models/Plan";
+import { logger } from "../../utils/logger";
 
 interface QueueData {
   name: string;
@@ -80,6 +81,7 @@ const CreateQueueService = async (queueData: QueueData): Promise<Queue> => {
   try {
     await queueSchema.validate({ color, name });
   } catch (err: any) {
+    logger.error(err)
     throw new AppError(err.message);
   }
 

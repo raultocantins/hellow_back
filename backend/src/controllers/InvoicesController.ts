@@ -7,6 +7,7 @@ import FindAllInvoiceService from "../services/InvoicesService/FindAllInvoiceSer
 import ListInvoicesServices from "../services/InvoicesService/ListInvoicesServices";
 import ShowInvoceService from "../services/InvoicesService/ShowInvoiceService";
 import UpdateInvoiceService from "../services/InvoicesService/UpdateInvoiceService";
+import { logger } from "../utils/logger";
 
 type IndexQuery = {
   searchParam: string;
@@ -58,6 +59,7 @@ export const update = async (
   try {
     await schema.validate(InvoiceData);
   } catch (err) {
+    logger.error(err)
     throw new AppError(err.message);
   }
 

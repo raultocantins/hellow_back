@@ -4,6 +4,7 @@ import AppError from "../../errors/AppError";
 import ShowUserService from "./ShowUserService";
 import Company from "../../models/Company";
 import User from "../../models/User";
+import { logger } from "../../utils/logger";
 
 interface UserData {
   email?: string;
@@ -57,6 +58,7 @@ const UpdateUserService = async ({
   try {
     await schema.validate({ email, password, profile, name });
   } catch (err: unknown) {
+    logger.error(err)
     throw new AppError((err as Error).message);
   }
 

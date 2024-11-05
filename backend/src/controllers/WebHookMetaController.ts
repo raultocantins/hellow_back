@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import Whatsapp from "../models/Whatsapp";
 import { handleMessage, handleStatusMessage } from "../services/MetaServices/graphMessageListener";
+import { logger } from "../utils/logger";
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
   const VERIFY_TOKEN = process.env.VERIFY_TOKEN || "whaticket";
@@ -58,6 +59,7 @@ export const webHook = async (
       message: body
     });
   } catch (error) {
+    logger.error(error)
     return res.status(500).json({
       message: error
     });

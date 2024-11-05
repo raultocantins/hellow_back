@@ -5,6 +5,7 @@ import Whatsapp from "../../models/Whatsapp";
 import Company from "../../models/Company";
 import Plan from "../../models/Plan";
 import AssociateWhatsappQueue from "./AssociateWhatsappQueue";
+import { logger } from "../../utils/logger";
 
 interface Request {
   name: string;
@@ -95,6 +96,7 @@ const CreateWhatsAppService = async ({
   try {
     await schema.validate({ name, status, isDefault });
   } catch (err: unknown) {
+    logger.error(err)
     throw new AppError((err as Error).message);
   }
 
@@ -138,6 +140,7 @@ const CreateWhatsAppService = async ({
     try {
       await tokenSchema.validate({ token });
     } catch (err: unknown) {
+      logger.error(err)
       throw new AppError((err as Error).message);
     }
   }

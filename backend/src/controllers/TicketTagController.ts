@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import TicketTag from '../models/TicketTag';
 import Tag from '../models/Tag'
+import { logger } from "../utils/logger";
 
 export const store = async (req: Request, res: Response): Promise<Response> => {
   const ticketId = parseInt(req.params.ticketId, 10);
@@ -15,6 +16,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     const ticketTag = await TicketTag.create({ ticketId, tagId });
     return res.status(201).json(ticketTag);
   } catch (error) {
+    logger.error(error)
     return res.status(500).json({ error: 'Failed to store ticket tag.' });
   }
 };
@@ -41,6 +43,7 @@ export const remove = async (req: Request, res: Response): Promise<Response> => 
 
     return res.status(200).json({ message: 'Ticket tags removed successfully.' });
   } catch (error) {
+    logger.error(error)
     return res.status(500).json({ error: 'Failed to remove ticket tags.' });
   }
 };

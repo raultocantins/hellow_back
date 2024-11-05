@@ -15,6 +15,7 @@ import User from "../models/User";
 import axios from 'axios';
 import CheckSettings from "../helpers/CheckSettings";
 import moment from "moment";
+import { logger } from "../utils/logger";
 
 
 type IndexQuery = {
@@ -60,6 +61,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
   try {
     await schema.validate(newCompany);
   } catch (err) {
+    logger.error(err)
     throw new AppError(err.message);
   }
 
@@ -125,6 +127,7 @@ export const update = async (
   try {
     await schema.validate(companyData);
   } catch (err) {
+    logger.error(err)
     throw new AppError(err.message);
   }
 

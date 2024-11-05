@@ -1,6 +1,7 @@
 import * as Yup from "yup";
 import AppError from "../../errors/AppError";
 import Announcement from "../../models/Announcement";
+import { logger } from "../../utils/logger";
 
 interface Data {
   priority: number;
@@ -21,6 +22,7 @@ const CreateService = async (data: Data): Promise<Announcement> => {
   try {
     await ticketnoteSchema.validate({ title, text });
   } catch (err: any) {
+    logger.error(err)
     throw new AppError(err.message);
   }
 

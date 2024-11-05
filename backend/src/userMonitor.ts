@@ -22,6 +22,7 @@ async function handleLoginStatus(job) {
       await user.update({ online: false });
       logger.info(`Usuário passado para offline: ${item.id}`);
     } catch (e: any) {
+      logger.error(e)
       Sentry.captureException(e);
     }
   }
@@ -39,6 +40,7 @@ async function handleUserConnection(job) {
       }
     }
   } catch (e) {
+    logger.error(e)
     Sentry.captureException(e);
   }
 }

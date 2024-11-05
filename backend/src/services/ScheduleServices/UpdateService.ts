@@ -3,6 +3,7 @@ import * as Yup from "yup";
 import AppError from "../../errors/AppError";
 import Schedule from "../../models/Schedule";
 import ShowService from "./ShowService";
+import { logger } from "../../utils/logger";
 
 interface ScheduleData {
   id?: number;
@@ -48,6 +49,7 @@ const UpdateUserService = async ({
   try {
     await schema.validate({ body });
   } catch (err: any) {
+    logger.error(err)
     throw new AppError(err.message);
   }
 

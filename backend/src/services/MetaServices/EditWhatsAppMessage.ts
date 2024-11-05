@@ -6,6 +6,7 @@ import Ticket from "../../models/Ticket";
 import formatBody from "../../helpers/Mustache";
 import { sendText } from "./graphAPI";
 import Contact from "../../models/Contact";
+import { logger } from "../../utils/logger";
 
 interface Request {
   messageId: string;
@@ -96,6 +97,7 @@ const EditWhatsAppMessage = async ({
 
     return { ticketId: savedMessage.ticketId, message: savedMessage };
   } catch (err) {
+    logger.error(err)
     throw new AppError("ERR_EDITING_WAPP_MSG");
   }
 };

@@ -5,6 +5,7 @@ import AppError from "../../errors/AppError";
 import Whatsapp from "../../models/Whatsapp";
 import ShowWhatsAppService from "./ShowWhatsAppService";
 import AssociateWhatsappQueue from "./AssociateWhatsappQueue";
+import { logger } from "../../utils/logger";
 
 export interface WhatsappData {
   name?: string;
@@ -60,6 +61,7 @@ const UpdateWhatsAppService = async ({
   try {
     await schema.validate({ name, status, isDefault });
   } catch (err: unknown) {
+    logger.error(err)
     throw new AppError((err as Error).message);
   }
 

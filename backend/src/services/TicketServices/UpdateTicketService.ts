@@ -14,6 +14,7 @@ import sendWhatsappMessage from "../MetaServices/sendWhatsappMessage";
 import AppError from "../../errors/AppError";
 import { GetCompanySetting } from "../../helpers/CheckSettings";
 import { verifyMessage } from "../MetaServices/graphMessageListener";
+import { logger } from "../../utils/logger";
 
 interface TicketData {
   status?: string;
@@ -29,15 +30,15 @@ interface Request {
   ticketId: number;
   companyId?: number | undefined;
   tokenData?:
-  | {
-    id: string;
-    username: string;
-    profile: string;
-    companyId: number;
-    iat: number;
-    exp: number;
-  }
-  | undefined;
+    | {
+        id: string;
+        username: string;
+        profile: string;
+        companyId: number;
+        iat: number;
+        exp: number;
+      }
+    | undefined;
 }
 
 interface Response {
@@ -128,7 +129,7 @@ const UpdateTicketService = async ({
           }
 
           if (["facebook", "instagram"].includes(ticket.channel)) {
-            console.log(
+            logger.info(
               `Checking if ${ticket.contact.number} is a valid ${ticket.channel} contact`
             );
             await sendWhatsappMessage({ body: bodyRatingMessage, ticket });
@@ -167,7 +168,7 @@ const UpdateTicketService = async ({
         // }
 
         if (["facebook", "instagram"].includes(ticket.channel)) {
-          console.log(
+          logger.info(
             `Checking if ${ticket.contact.number} is a valid ${ticket.channel} contact`
           );
           await sendWhatsappMessage({ body, ticket });
@@ -197,7 +198,7 @@ const UpdateTicketService = async ({
     if (oldQueueId !== queueId && !isNil(oldQueueId) && !isNil(queueId)) {
       const queue = await Queue.findByPk(queueId);
       if (["facebook", "instagram"].includes(ticket.channel)) {
-        console.log(
+        logger.info(
           `Checking if ${ticket.contact.number} is a valid ${ticket.channel} contact`
         );
         await sendWhatsappMessage({
@@ -295,6 +296,7 @@ const UpdateTicketService = async ({
 
     return { ticket, oldStatus, oldUserId };
   } catch (err) {
+    logger.error(err)
     Sentry.captureException(err);
   }
 };

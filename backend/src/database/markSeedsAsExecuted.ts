@@ -1,5 +1,6 @@
 import fs from "fs";
 import { Sequelize } from "sequelize";
+import { logger } from "../utils/logger";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const dbConfig = require("../config/database");
@@ -15,13 +16,10 @@ async function markSeedsAsExecuted() {
   const seedFiles = getSeedFiles();
 
   if (seedFiles.length === 0) {
-    console.log("No seed files found in the seeds directory.");
+    logger.info("No seed files found in the seeds directory.")
     return;
   }
-
-  console.log(
-    `Found ${seedFiles.length} seed files. Marking them as executed...`
-  );
+  logger.info(`Found ${seedFiles.length} seed files. Marking them as executed...`)
 
   try {
     await sequelize.query(`
@@ -37,7 +35,7 @@ async function markSeedsAsExecuted() {
         .join(", ")}`
     );
   } catch (error) {
-    console.error("Error marking seeds as executed:", error);
+    logger.error("Error marking seeds as executed:", error);
   } finally {
     await sequelize.close();
   }

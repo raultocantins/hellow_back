@@ -20,6 +20,7 @@ import FindOrCreateATicketTrakingService from "../TicketServices/FindOrCreateATi
 import sendFaceMessage from "./sendWhatsappMessage";
 
 import QueueOption from "../../models/QueueOption";
+import { logger } from "../../utils/logger";
 export const verifyRating = (ticketTraking: TicketTraking) => {
   if (
     ticketTraking &&
@@ -606,8 +607,8 @@ export const handleMessage = async (
         return;
       }
     }
-  } catch (e) {
-    //
+  } catch (err) {
+    logger.error(err)
   }
 
   if (
@@ -687,8 +688,8 @@ export const handleStatusMessage = async (webhookEvent: any): Promise<any> => {
         message: messageToUpdate
       }
     );
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    logger.error(error)
   }
 };
 

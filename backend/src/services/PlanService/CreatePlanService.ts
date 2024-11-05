@@ -1,6 +1,7 @@
 import * as Yup from "yup";
 import AppError from "../../errors/AppError";
 import Plan from "../../models/Plan";
+import { logger } from "../../utils/logger";
 
 interface PlanData {
   name: string;
@@ -38,6 +39,7 @@ const CreatePlanService = async (planData: PlanData): Promise<Plan> => {
   try {
     await planSchema.validate({ name });
   } catch (err) {
+    logger.error(err)
     throw new AppError(err.message);
   }
 

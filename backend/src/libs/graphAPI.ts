@@ -1,7 +1,7 @@
 import axios from "axios";
 import FormData from "form-data";
-import Ticket from "../../models/Ticket";
-import { logger } from "../../utils/logger";
+import Ticket from "../models/Ticket";
+import { logger } from "../utils/logger";
 
 const apiBase = (token: string) =>
   axios.create({
@@ -23,7 +23,7 @@ export const markSeen = async (
       message_id: messageId
     });
   } catch (err) {
-    logger.error(err);
+    logger.error("LIB -> erro ao marcar mensagem como lida", err);
   }
 };
 
@@ -58,7 +58,7 @@ export const sendText = async (
 
     return data;
   } catch (error) {
-    logger.error(error);
+    logger.error("LIB -> erro ao enviar mensagem de texto", error);
   }
 };
 
@@ -122,7 +122,7 @@ export const sendMediaFromUrl = async (
 
     return { ...data, mediaType: messageData.type };
   } catch (error) {
-    logger.error(error);
+    logger.error("LIB -> erro ao enviar mensagem media", error);
   }
 };
 // Função para fazer upload de arquivos em memória para a API do WhatsApp
@@ -155,7 +155,7 @@ export async function uploadToWhatsApp(
       mediaUrl: mediaData.url // url da media na API do WhatsApp
     };
   } catch (error) {
-    logger.error("Erro ao fazer upload para o WhatsApp:", error);
+    logger.error("erro ao fazer upload para o whatsApp:", error);
     throw error;
   }
 }
@@ -169,7 +169,7 @@ export async function getMediaData(id: string, token: string) {
       filetype: data.mime_type.split("/")[1]
     };
   } catch (error) {
-    logger.error("Erro ao buscar os dados da media:", error);
+    logger.error("erro ao buscar os dados da media:", error);
     throw error;
   }
 }

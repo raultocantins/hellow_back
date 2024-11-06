@@ -3,7 +3,7 @@ import Contact from "../../models/Contact";
 import Message from "../../models/Message";
 import Ticket from "../../models/Ticket";
 import { logger } from "../../utils/logger";
-import { sendText } from "./graphAPI";
+import { sendText } from "../../libs/graphAPI";
 
 const DeleteWhatsAppMessage = async (messageId: string): Promise<Message> => {
   const message = await Message.findByPk(messageId, {

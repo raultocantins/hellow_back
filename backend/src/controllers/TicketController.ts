@@ -10,6 +10,7 @@ import ShowTicketUUIDService from "../services/TicketServices/ShowTicketFromUUID
 import ShowTicketService from "../services/TicketServices/ShowTicketService";
 import UpdateTicketService from "../services/TicketServices/UpdateTicketService";
 import ListTicketsServiceKanban from "../services/TicketServices/ListTicketsServiceKanban";
+import { logger } from "../utils/logger";
 
 type IndexQuery = {
   searchParam: string;
@@ -32,6 +33,9 @@ interface TicketData {
 }
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
+  logger.info("CONTROLLER -> obtendo a lista de ticket", {
+    payload: req.query
+  });
   const {
     pageNumber,
     status,
@@ -64,20 +68,24 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
     usersIds = JSON.parse(userIdsStringified);
   }
 
-  const { tickets, count, hasMore } = await ListTicketsService({
-    searchParam,
-    tags: tagsIds,
-    users: usersIds,
-    pageNumber,
-    status,
-    date,
-    updatedAt,
-    showAll,
-    userId,
-    queueIds,
-    withUnreadMessages,
-    companyId
-  });
+  const { tickets, count, hasMore } = await new Mutex().runExclusive(
+    async () => {
+      return await ListTicketsService({
+        searchParam,
+        tags: tagsIds,
+        users: usersIds,
+        pageNumber,
+        status,
+        date,
+        updatedAt,
+        showAll,
+        userId,
+        queueIds,
+        withUnreadMessages,
+        companyId
+      });
+    }
+  );
 
   return res.status(200).json({ tickets, count, hasMore });
 };
@@ -86,6 +94,9 @@ export const kanban = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
+  logger.info("CONTROLLER -> obtendo a lista de ticket para o kanban", {
+    payload: req.query
+  });
   const {
     pageNumber,
     status,
@@ -118,34 +129,43 @@ export const kanban = async (
     usersIds = JSON.parse(userIdsStringified);
   }
 
-  const { tickets, count, hasMore } = await ListTicketsServiceKanban({
-    searchParam,
-    tags: tagsIds,
-    users: usersIds,
-    pageNumber,
-    status,
-    date,
-    updatedAt,
-    showAll,
-    userId,
-    queueIds,
-    withUnreadMessages,
-    companyId
-  });
+  const { tickets, count, hasMore } = await new Mutex().runExclusive(
+    async () => {
+      return await ListTicketsServiceKanban({
+        searchParam,
+        tags: tagsIds,
+        users: usersIds,
+        pageNumber,
+        status,
+        date,
+        updatedAt,
+        showAll,
+        userId,
+        queueIds,
+        withUnreadMessages,
+        companyId
+      });
+    }
+  );
 
   return res.status(200).json({ tickets, count, hasMore });
 };
 
 export const store = async (req: Request, res: Response): Promise<Response> => {
+  logger.info("CONTROLLER -> criando um novo ticket", {
+    payload: req.body
+  });
   const { contactId, status, userId, queueId }: TicketData = req.body;
   const { companyId } = req.user;
 
-  const ticket = await CreateTicketService({
-    contactId,
-    status,
-    userId,
-    companyId,
-    queueId
+  const ticket = await new Mutex().runExclusive(async () => {
+    return await CreateTicketService({
+      contactId,
+      status,
+      userId,
+      companyId,
+      queueId
+    });
   });
 
   const io = getIO();
@@ -160,10 +180,15 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
 };
 
 export const show = async (req: Request, res: Response): Promise<Response> => {
+  logger.info("CONTROLLER -> obtendo as informações do ticket", {
+    payload: req.params
+  });
   const { ticketId } = req.params;
   const { companyId } = req.user;
 
-  const contact = await ShowTicketService(ticketId, companyId);
+  const contact = await new Mutex().runExclusive(async () => {
+    return await ShowTicketService(ticketId, companyId);
+  });
 
   return res.status(200).json(contact);
 };
@@ -172,9 +197,14 @@ export const showFromUUID = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
+  logger.info("CONTROLLER -> obtendo informações do ticket via UUID", {
+    payload: req.params
+  });
   const { uuid } = req.params;
 
-  const ticket: Ticket = await ShowTicketUUIDService(uuid);
+  const ticket: Ticket = await new Mutex().runExclusive(async () => {
+    return await ShowTicketUUIDService(uuid);
+  });
 
   return res.status(200).json(ticket);
 };
@@ -183,8 +213,10 @@ export const update = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
+  logger.info("CONTROLLER -> atualizando ticket", {
+    payload: req.params
+  });
   const { ticketId } = req.params;
-
   const mutex = new Mutex();
   const { ticket } = await mutex.runExclusive(async () => {
     const result = await UpdateTicketService({
@@ -202,6 +234,9 @@ export const remove = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
+  logger.info("CONTROLLER -> removendo ticket", {
+    payload: req.params
+  });
   const { ticketId } = req.params;
   const { companyId } = req.user;
 

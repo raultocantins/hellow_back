@@ -9,7 +9,7 @@ import UpdateContactService from "../services/ContactServices/UpdateContactServi
 import DeleteContactService from "../services/ContactServices/DeleteContactService";
 import GetContactService from "../services/ContactServices/GetContactService";
 
-import CheckIsValidContact from "../services/WbotServices/CheckIsValidContact";
+import CheckIsValidContact from "../services/MetaServices/CheckIsValidContact";
 import AppError from "../errors/AppError";
 import SimpleListService, {
   SearchContactParams
@@ -82,7 +82,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
   try {
     await schema.validate(newContact);
   } catch (err: any) {
-    logger.error(err)
+    logger.error("CONTROLLER -> erro ao salvar contato",err)
     throw new AppError(err.message);
   }
 
@@ -131,7 +131,7 @@ export const update = async (
   try {
     await schema.validate(contactData);
   } catch (err: any) {
-    logger.error(err)
+    logger.error("CONTROLLER -> erro ao atualizar contato",err)
     throw new AppError(err.message);
   }
 

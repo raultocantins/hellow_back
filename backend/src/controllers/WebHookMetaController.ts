@@ -59,7 +59,7 @@ export const webHook = async (
       message: body
     });
   } catch (error) {
-    logger.error(error)
+    logger.error("CONTROLLER -> erro ao tratar evento no webhook",error)
     return res.status(500).json({
       message: error
     });

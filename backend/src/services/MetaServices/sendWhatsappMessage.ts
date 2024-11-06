@@ -1,7 +1,7 @@
 import AppError from "../../errors/AppError";
 import Message from "../../models/Message";
 import Ticket from "../../models/Ticket";
-import { sendText } from "./graphAPI";
+import { sendText } from "../../libs/graphAPI";
 import formatBody from "../../helpers/Mustache";
 import { logger } from "../../utils/logger";
 
@@ -40,7 +40,7 @@ const SendWhatsAppMessage = async ({
       }
     };
   } catch (err) {
-    logger.error(err)
+    logger.error("SERVICE -> erro ao enviar mensagem de texto",err)
     throw new AppError("ERR_SENDING_FACEBOOK_MSG");
   }
 };

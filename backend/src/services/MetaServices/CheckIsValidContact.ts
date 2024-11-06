@@ -5,10 +5,10 @@ const CheckIsValidContact = async (
   companyId: number
 ): Promise<void> => {
   try {
-    logger.info(`VERIFICANDO SE O CONTATO É VALIDO: ${number} - ${companyId}`);
+    logger.info(`SERVICE -> verificando se o contato é válido: ${number} - ${companyId}`);
     return;
   } catch (err) {
-    logger.error(err)
+    logger.error("SERVICE -> erro ao verificar se contato é válido",err)
     throw new AppError("");
   }
 };

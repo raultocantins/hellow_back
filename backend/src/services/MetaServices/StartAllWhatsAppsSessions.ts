@@ -12,7 +12,7 @@ export const StartAllWhatsAppsSessions = async (
       whatsapps.map(whatsapp => whatsapp.update({ status: "CONNECTED" }))
     );
   } catch (err) {
-    logger.error(err)
+    logger.error("SERVICE -> erro ao inicializar as conexões de whatsapp", err);
     Sentry.captureException(err);
   }
 };

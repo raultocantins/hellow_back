@@ -2,7 +2,7 @@ import Contact from "../../models/Contact";
 import Ticket from "../../models/Ticket";
 import CreateOrUpdateContactService from "../ContactServices/CreateOrUpdateContactService";
 import CreateMessageService from "../MessageServices/CreateMessageService";
-import { getMediaData } from "./graphAPI";
+import { getMediaData } from "../../libs/graphAPI";
 import Whatsapp from "../../models/Whatsapp";
 import UpdateTicketService from "../TicketServices/UpdateTicketService";
 import ShowWhatsAppService from "../WhatsappService/ShowWhatsAppService";
@@ -21,6 +21,7 @@ import sendFaceMessage from "./sendWhatsappMessage";
 
 import QueueOption from "../../models/QueueOption";
 import { logger } from "../../utils/logger";
+import { Mutex } from "async-mutex";
 export const verifyRating = (ticketTraking: TicketTraking) => {
   if (
     ticketTraking &&
@@ -530,13 +531,16 @@ export const handleMessage = async (
     return;
   }
 
-  const ticket = await FindOrCreateTicketServiceMeta(
-    contact,
-    getSession.id,
-    unreadCount,
-    companyId,
-    channel
-  );
+  const ticket = await new Mutex().runExclusive(async () => {
+    return await FindOrCreateTicketServiceMeta(
+      contact,
+      getSession.id,
+      unreadCount,
+      companyId,
+      channel
+    );
+  });
+
   if (["audio", "image", "video", "document"].includes(message.type)) {
     let mediaId: string;
     let caption: string = "";
@@ -560,6 +564,7 @@ export const handleMessage = async (
         throw new Error("Tipo de arquivo não suportado");
     }
     const mediaData = await getMediaData(mediaId, whatsapp.facebookUserToken);
+
     message.mediaType = message.type;
 
     await verifyMessageMedia(
@@ -593,11 +598,13 @@ export const handleMessage = async (
     return;
   }
 
-  const ticketTraking = await FindOrCreateATicketTrakingService({
-    ticketId: ticket.id,
-    companyId,
-    whatsappId: getSession?.id,
-    channel
+  const ticketTraking = await new Mutex().runExclusive(async () => {
+    return await FindOrCreateATicketTrakingService({
+      ticketId: ticket.id,
+      companyId,
+      whatsappId: getSession?.id,
+      channel
+    });
   });
 
   try {
@@ -608,7 +615,7 @@ export const handleMessage = async (
       }
     }
   } catch (err) {
-    logger.error(err)
+    logger.error("SERVICE -> erro ao realizar avaliação", err);
   }
 
   if (
@@ -677,7 +684,6 @@ export const handleStatusMessage = async (webhookEvent: any): Promise<any> => {
         }
       ]
     });
-
     if (!messageToUpdate) return;
 
     await messageToUpdate.update({ ack: ack });
@@ -689,7 +695,7 @@ export const handleStatusMessage = async (webhookEvent: any): Promise<any> => {
       }
     );
   } catch (error) {
-    logger.error(error)
+    logger.error("SERVICE: erro ao atualizar o status da mensagem", error);
   }
 };
 

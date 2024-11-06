@@ -61,7 +61,7 @@ const UpdateWhatsAppService = async ({
   try {
     await schema.validate({ name, status, isDefault });
   } catch (err: unknown) {
-    logger.error(err)
+    logger.error("SERVICE -> erro ao atualizar conexão whatsapp", err);
     throw new AppError((err as Error).message);
   }
 
@@ -96,7 +96,7 @@ const UpdateWhatsAppService = async ({
     isDefault,
     companyId,
     token,
-    transferMessage,
+    transferMessage
   });
 
   await AssociateWhatsappQueue(whatsapp, queueIds);

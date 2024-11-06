@@ -20,7 +20,8 @@ import {
   verifyMessage,
   verifyMessageMedia
 } from "../services/MetaServices/graphMessageListener";
-import { uploadToWhatsApp } from "../services/MetaServices/graphAPI";
+import { uploadToWhatsApp } from "../libs/graphAPI";
+import { Mutex } from "async-mutex";
 
 type IndexQuery = {
   pageNumber: string;
@@ -36,6 +37,13 @@ type MessageData = {
 };
 
 export const index = async (req: Request, res: Response): Promise<Response> => {
+  logger.info("CONTROLLER -> obtendo mensagens", {
+    payload: {
+      params: req.params,
+      query: req.query,
+      user: req.user
+    }
+  });
   const { ticketId } = req.params;
   const { pageNumber, markAsRead } = req.query as IndexQuery;
   const { companyId, profile } = req.user;
@@ -50,12 +58,16 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
     });
   }
 
-  const { count, messages, ticket, hasMore } = await ListMessagesService({
-    pageNumber,
-    ticketId,
-    companyId,
-    queues
-  });
+  const { count, messages, ticket, hasMore } = await new Mutex().runExclusive(
+    async () => {
+      return await ListMessagesService({
+        pageNumber,
+        ticketId,
+        companyId,
+        queues
+      });
+    }
+  );
 
   if (ticket.channel === "facebook" && markAsRead === "true") {
     SetTicketMessagesAsRead(ticket);
@@ -65,31 +77,46 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 };
 
 export const store = async (req: Request, res: Response): Promise<Response> => {
+  logger.info("CONTROLLER -> enviando mensagem", {
+    payload: {
+      params: req.params,
+      body: req.body,
+      user: req.user
+    }
+  });
   const { ticketId } = req.params;
   const { body, quotedMsg }: MessageData = req.body;
   const medias = req.files as Express.Multer.File[];
   const { companyId } = req.user;
 
-  const ticket = await ShowTicketService(ticketId, companyId);
+  const ticket = await new Mutex().runExclusive(async () => {
+    return await ShowTicketService(ticketId, companyId);
+  });
   const { channel } = ticket;
 
   if (medias) {
     if (["facebook", "instagram"].includes(channel)) {
       await Promise.all(
         medias.map(async media => {
-          const mediaData = await uploadToWhatsApp(
-            media.buffer,
-            media.originalname,
-            media.mimetype,
-            ticket
-          );
-          const msg = await sendWhatsappMessageMedia({
-            mediaData,
-            ticket,
-            body,
-            quotedMsg
+          const mediaData = await new Mutex().runExclusive(async () => {
+            return await uploadToWhatsApp(
+              media.buffer,
+              media.originalname,
+              media.mimetype,
+              ticket
+            );
           });
-          await verifyMessageMedia(
+
+          const msg = await new Mutex().runExclusive(async () => {
+            return await sendWhatsappMessageMedia({
+              mediaData,
+              ticket,
+              body,
+              quotedMsg
+            });
+          });
+
+          verifyMessageMedia(
             msg,
             body,
             ticket,
@@ -104,7 +131,10 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     }
   } else {
     if (["facebook", "instagram"].includes(channel)) {
-      var msg = await SendWhatsAppMessage({ body, ticket, quotedMsg });
+      var msg = await new Mutex().runExclusive(async () => {
+        await SendWhatsAppMessage({ body, ticket, quotedMsg });
+      });
+
       verifyMessage(
         msg,
         body,
@@ -121,14 +151,23 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
 };
 
 export const edit = async (req: Request, res: Response): Promise<Response> => {
+  logger.info("CONTROLLER -> editando mensagem", {
+    payload: {
+      params: req.params,
+      body: req.body,
+      user: req.user
+    }
+  });
   const { messageId } = req.params;
   const { companyId } = req.user;
   const { body }: MessageData = req.body;
 
-  const { ticketId, message } = await EditWhatsAppMessage({
-    messageId,
-    companyId,
-    body
+  const { ticketId, message } = await new Mutex().runExclusive(async () => {
+    return await EditWhatsAppMessage({
+      messageId,
+      companyId,
+      body
+    });
   });
 
   const io = getIO();
@@ -144,10 +183,18 @@ export const remove = async (
   req: Request,
   res: Response
 ): Promise<Response> => {
+  logger.info("CONTROLLER -> removendo mensagem", {
+    payload: {
+      params: req.params,
+      user: req.user
+    }
+  });
   const { messageId } = req.params;
   const { companyId } = req.user;
 
-  const message = await DeleteWhatsAppMessage(messageId);
+  const message = await new Mutex().runExclusive(async () => {
+    return await DeleteWhatsAppMessage(messageId);
+  });
 
   const io = getIO();
   io.to(message.ticketId.toString()).emit(`company-${companyId}-appMessage`, {

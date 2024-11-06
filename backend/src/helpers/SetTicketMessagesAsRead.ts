@@ -3,7 +3,7 @@ import { getIO } from "../libs/socket";
 import Message from "../models/Message";
 import Ticket from "../models/Ticket";
 import Whatsapp from "../models/Whatsapp";
-import { markSeen } from "../services/MetaServices/graphAPI";
+import { markSeen } from "../libs/graphAPI";
 import { logger } from "../utils/logger";
 
 const SetTicketMessagesAsRead = async (ticket: Ticket): Promise<void> => {

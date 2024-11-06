@@ -25,7 +25,7 @@ interface Request {
   tokenMeta?: string;
   channel?: string;
   facebookPageUserId?: string;
-  phone?:string;
+  phone?: string;
 }
 
 interface Response {
@@ -96,7 +96,7 @@ const CreateWhatsAppService = async ({
   try {
     await schema.validate({ name, status, isDefault });
   } catch (err: unknown) {
-    logger.error(err)
+    logger.error("SERVICE -> erro ao adicionar conexão whatsapp", err);
     throw new AppError((err as Error).message);
   }
 
@@ -140,7 +140,7 @@ const CreateWhatsAppService = async ({
     try {
       await tokenSchema.validate({ token });
     } catch (err: unknown) {
-      logger.error(err)
+      logger.error("SERVICE -> erro ao adicionar conexão whatsapp", err);
       throw new AppError((err as Error).message);
     }
   }

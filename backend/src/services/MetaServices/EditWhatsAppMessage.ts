@@ -4,7 +4,7 @@ import OldMessage from "../../models/OldMessage";
 import Ticket from "../../models/Ticket";
 
 import formatBody from "../../helpers/Mustache";
-import { sendText } from "./graphAPI";
+import { sendText } from "../../libs/graphAPI";
 import Contact from "../../models/Contact";
 import { logger } from "../../utils/logger";
 

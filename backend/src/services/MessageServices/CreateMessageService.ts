@@ -101,15 +101,12 @@ const CreateMessageService = async ({
       contact: message.ticket.contact
     }
   );
-  logger.debug(
-    {
-      company: companyId,
-      ticket: message.ticketId,
-      queue: message.ticket.queueId,
-      status: message.ticket.status
-    },
-    "sending create message to clients"
-  );
+  logger.debug("sending create message to clients", {
+    company: companyId,
+    ticket: message.ticketId,
+    queue: message.ticket.queueId,
+    status: message.ticket.status
+  });
   return message;
 };
 

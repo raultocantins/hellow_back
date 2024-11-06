@@ -3,7 +3,6 @@ import { Request, Response, NextFunction } from "express";
 import AppError from "../errors/AppError";
 import User from "../models/User";
 import Setting from "../models/Setting";
-import { error } from "console";
 import { logger } from "../utils/logger";
 
 const apiTokenAuth = async (
@@ -47,7 +46,7 @@ const apiTokenAuth = async (
 
     return next();
   } catch (error) {
-    logger.error(error)
+    logger.warn(error)
   }
 
   throw new AppError("Token inválido", 403);

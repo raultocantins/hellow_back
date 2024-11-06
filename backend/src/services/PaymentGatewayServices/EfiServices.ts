@@ -58,10 +58,10 @@ const createWebHook = async (efiPay: EfiPay) => {
 
   return efiPay.pixConfigWebhook(params, body).then(
     (ok: unknown) => {
-      logger.info({ result: ok }, "pixConfigWebhook ok");
+      logger.info("pixConfigWebhook ok", { result: ok });
     },
     (error: unknown) => {
-      logger.error({ result: error }, "pixConfigWebhook error:");
+      logger.error("pixConfigWebhook error:", { result: error });
     }
   );
 };
@@ -89,10 +89,9 @@ export const efiInitialize = async () => {
           if (hooks?.webhookUrl !== webhookUrl) {
             createWebHook(efiPay);
           } else {
-            logger.debug(
-              { result: hooks },
-              "efiInitialize: webhook correto já instalado"
-            );
+            logger.debug("efiInitialize: webhook correto já instalado", {
+              result: hooks
+            });
           }
         },
         (error: { nome: string }) => {
@@ -100,8 +99,8 @@ export const efiInitialize = async () => {
             createWebHook(efiPay);
           } else {
             logger.error(
-              error,
-              "efiInitialize: fail to verify current webhook"
+              "efiInitialize: fail to verify current webhook",
+              error
             );
           }
         }
@@ -123,7 +122,7 @@ export const efiWebhook = async (
   if (req.body.pix) {
     req.body.pix.forEach(
       async (pix: { status: string; txid: string; valor: number }) => {
-        logger.debug(pix, "Processando pagamento");
+        logger.debug("Processando pagamento", pix);
 
         const invoice = await Invoices.findOne({
           where: {
@@ -265,7 +264,7 @@ export const efiCreateSubscription = async (
       valor: { original: price }
     });
   } catch (error) {
-    logger.error({ efiOptions, error }, "efiCreateSubscription error");
+    logger.error("efiCreateSubscription error", { efiOptions, error });
     throw new AppError(
       "Problema encontrado, entre em contato com o suporte!",
       400

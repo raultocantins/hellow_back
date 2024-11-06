@@ -1,4 +1,4 @@
-import { Logger } from "pino";
+import { Logger } from "winston";
 
 /**
  * A simple object cache with a time-to-live (TTL) for each key

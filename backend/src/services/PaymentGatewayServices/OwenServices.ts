@@ -182,7 +182,7 @@ export const owenCreateSubscription = async (
       valor: { original: price }
     });
   } catch (error) {
-    logger.error({ error }, "owenCreateSubscription error");
+    logger.error( "owenCreateSubscription error",{ error });
     throw new AppError(
       "Problema encontrado, entre em contato com o suporte!",
       400

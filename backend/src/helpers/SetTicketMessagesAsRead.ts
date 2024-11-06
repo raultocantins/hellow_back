@@ -48,7 +48,6 @@ const SetTicketMessagesAsRead = async (ticket: Ticket): Promise<void> => {
     );
   } catch (err) {
     logger.error(
-      { error: err as Error },
       `Could not mark messages as read. Err: ${err?.message}`
     );
   }

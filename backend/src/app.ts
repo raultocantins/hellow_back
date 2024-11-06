@@ -10,13 +10,16 @@ import "./database";
 import uploadConfig from "./config/upload";
 import AppError from "./errors/AppError";
 import routes from "./routes";
-import { logger } from "./utils/logger";
 import { messageQueue, sendScheduledMessages } from "./queues";
+import trace from "dd-trace";
 
-
-
+trace.init({
+  service:process.env.DATADOG_SERVICE,
+  env:process.env.NODE_ENV,
+  version: process.env.DATADOG_VERSION,
+  logInjection: true
+});
 Sentry.init({ dsn: process.env.SENTRY_DSN });
-
 const app = express();
 
 app.set("queues", {
@@ -39,11 +42,8 @@ app.use(routes);
 app.use(Sentry.Handlers.errorHandler());
 app.use(async (err: Error, req: Request, res: Response, _: NextFunction) => {
   if (err instanceof AppError) {
-    logger.warn(err);
     return res.status(err.statusCode).json({ error: err.message });
   }
-
-  logger.error(err);
   return res.status(500).json({ error: "Internal server error" });
 });
 

@@ -71,12 +71,12 @@ gracefulShutdown(server, {
 
 // Global Exception Handlers
 process.on("uncaughtException", err => {
-  logger.error({ err }, `Uncaught Exception: ${err.message}`);
+  logger.error(`Uncaught Exception: ${err.message}`);
   process.exit(1);
 });
 
 // Global Exception Handlers for logging only
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 process.on("unhandledRejection", (reason: any, promise) => {
-  logger.debug({ promise, reason }, "Unhandled Rejection");
+  logger.debug("Unhandled Rejection");
 });

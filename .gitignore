@@ -1,2 +1,10 @@
-.docker
-*~
+/node_modules
+/dist
+/private
+/public/*
+/.well-known
+/.env
+/.externalToolBuilders/
+/.project
+/.settings/
+/package-lock.json

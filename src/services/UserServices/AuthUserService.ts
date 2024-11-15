@@ -35,7 +35,7 @@ const AuthUserService = async ({
 }: Request): Promise<Response> => {
   const user = await User.findOne({
     where: { email },
-    include: ["queues", { model: Company, include: [{ model: Setting }] }]
+    include: ["queues", { model: Company, include: [{ model: Setting }]},"profilePermission" ]
   });
 
   if (!user) {

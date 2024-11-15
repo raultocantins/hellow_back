@@ -22,6 +22,8 @@ import UserQueue from "./UserQueue";
 import Company from "./Company";
 import QuickMessage from "./QuickMessage";
 import UserSocketSession from "./UserSocketSession"; // Importação da nova model
+import Profile from "./Profile";
+import { DataTypes } from "sequelize";
 
 @Table
 class User extends Model<User> {
@@ -55,6 +57,25 @@ class User extends Model<User> {
 
   @Column
   online: boolean;
+
+  @Default(true)
+  @Column
+  isActive: boolean;
+
+  @Default(["08:00", "18:00"])
+  @Column({ type: DataTypes.ARRAY(DataTypes.STRING) })
+  accessWeekdays: string[];
+
+  @Default(["08:00", "18:00"])
+  @Column({ type: DataTypes.ARRAY(DataTypes.STRING) })
+  accessWeekend: string[];
+
+  @ForeignKey(() => Profile)
+  @Column
+  profileId: number;
+
+  @BelongsTo(() => Profile)
+  profilePermission: Profile;
 
   @CreatedAt
   createdAt: Date;

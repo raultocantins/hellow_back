@@ -41,8 +41,13 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     name,
     profile,
     companyId: bodyCompanyId,
-    queueIds
+    queueIds,
+    profileId,
+    isActive,
+    accessWeekdays,
+    accessWeekend
   } = req.body;
+
   let userCompanyId: number | null = null;
 
   let requestUser: User = null;
@@ -52,8 +57,7 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     userCompanyId = cId;
     requestUser = await User.findByPk(req.user.id);
   }
-
-  const newUserCompanyId = bodyCompanyId || userCompanyId; 
+  const newUserCompanyId = bodyCompanyId || userCompanyId;
 
   if (req.user?.profile !== "admin") {
     throw new AppError("ERR_NO_PERMISSION", 403);
@@ -67,7 +71,11 @@ export const store = async (req: Request, res: Response): Promise<Response> => {
     name,
     profile,
     companyId: newUserCompanyId,
-    queueIds
+    queueIds,
+    profileId,
+    isActive,
+    accessWeekdays,
+    accessWeekend
   });
 
   const io = getIO();

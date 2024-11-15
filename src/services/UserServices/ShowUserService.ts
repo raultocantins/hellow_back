@@ -2,6 +2,7 @@ import User from "../../models/User";
 import AppError from "../../errors/AppError";
 import Queue from "../../models/Queue";
 import Company from "../../models/Company";
+import Profile from "../../models/Profile";
 
 const ShowUserService = async (id: string | number, requestUserId: string | number = null): Promise<User> => {
 
@@ -14,11 +15,15 @@ const ShowUserService = async (id: string | number, requestUserId: string | numb
       "companyId",
       "profile",
       "super",
-      "tokenVersion"
+      "tokenVersion",
+      "isActive",
+      "accessWeekdays",
+      "accessWeekend"
     ],
     include: [
       { model: Queue, as: "queues", attributes: ["id", "name", "color"] },
-      { model: Company, as: "company", attributes: ["id", "name", "dueDate"] }
+      { model: Company, as: "company", attributes: ["id", "name", "dueDate"] },
+      { model: Profile, as: "profilePermission", attributes: ["id", "name","permissions"] }
     ]
   });
 

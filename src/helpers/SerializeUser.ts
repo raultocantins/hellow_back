@@ -11,6 +11,11 @@ interface SerializedUser {
   company: Company | null;
   super: boolean;
   queues: Queue[];
+  profileId: number;
+  permissions: string[];
+  isActive: boolean;
+  accessWeekdays: string[];
+  accessWeekend: string[];
 }
 
 export const SerializeUser = async (user: User): Promise<SerializedUser> => {
@@ -22,6 +27,11 @@ export const SerializeUser = async (user: User): Promise<SerializedUser> => {
     companyId: user.companyId,
     company: user.company,
     super: user.super,
-    queues: user.queues
+    queues: user.queues,
+    profileId: user.profileId,
+    permissions: user?.profilePermission?.permissions??[],
+    isActive: user.isActive,
+    accessWeekdays: user.accessWeekdays,
+    accessWeekend: user.accessWeekend
   };
 };

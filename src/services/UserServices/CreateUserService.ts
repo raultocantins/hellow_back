@@ -14,6 +14,10 @@ interface Request {
   queueIds?: number[];
   companyId?: number;
   profile?: string;
+  profileId?: number;
+  isActive?: boolean;
+  accessWeekdays?: string[];
+  accessWeekend?: string[];
 }
 
 interface Response {
@@ -29,8 +33,13 @@ const CreateUserService = async ({
   name,
   queueIds = [],
   companyId,
-  profile = "admin"
+  profile = "admin",
+  profileId,
+  isActive,
+  accessWeekdays,
+  accessWeekend
 }: Request): Promise<Response> => {
+
   if (companyId !== undefined) {
     const company = await Company.findOne({
       where: {
@@ -53,7 +62,6 @@ const CreateUserService = async ({
       }
     }
   }
-
   const schema = Yup.object().shape({
     name: Yup.string().required().min(2),
     email: Yup.string()
@@ -76,19 +84,22 @@ const CreateUserService = async ({
   try {
     await schema.validate({ email, password, name });
   } catch (err) {
-    logger.error(err)
+    logger.error(err);
     throw new AppError(err.message);
   }
-
   const user = await User.create(
     {
       email,
       password,
       name,
       companyId,
-      profile
+      profile,
+      profileId,
+      isActive,
+      accessWeekdays,
+      accessWeekend
     },
-    { include: ["queues", "company"] }
+    { include: ["queues", "company", "profilePermission"] }
   );
 
   await user.$set("queues", queueIds);

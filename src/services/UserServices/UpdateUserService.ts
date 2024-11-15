@@ -13,6 +13,10 @@ interface UserData {
   profile?: string;
   companyId?: number;
   queueIds?: number[];
+  profileId: number;
+  isActive?: boolean;
+  accessWeekdays?: string[];
+  accessWeekend?: string[];
 }
 
 interface Request {
@@ -53,12 +57,22 @@ const UpdateUserService = async ({
     password: Yup.string()
   });
 
-  const { email, password, profile, name, queueIds = [] } = userData;
+  const {
+    email,
+    password,
+    profile,
+    name,
+    queueIds = [],
+    profileId,
+    isActive,
+    accessWeekdays,
+    accessWeekend
+  } = userData;
 
   try {
     await schema.validate({ email, password, profile, name });
   } catch (err: unknown) {
-    logger.error(err)
+    logger.error(err);
     throw new AppError((err as Error).message);
   }
 
@@ -67,14 +81,22 @@ const UpdateUserService = async ({
       email,
       password,
       profile,
-      name
+      name,
+      profileId,
+      isActive,
+      accessWeekdays,
+      accessWeekend
     });
     await user.$set("queues", queueIds);
   } else {
     await user.update({
       email,
       password,
-      name
+      name,
+      profileId,
+      isActive,
+      accessWeekdays,
+      accessWeekend
     });
   }
 

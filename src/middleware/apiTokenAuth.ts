@@ -40,13 +40,14 @@ const apiTokenAuth = async (
         id: `${user.id}`,
         profile: user.profile,
         isSuper: false,
-        companyId: setting.companyId
+        companyId: setting.companyId,
+        permissions: user?.profilePermission?.permissions ?? []
       };
     }
 
     return next();
   } catch (error) {
-    logger.warn(error)
+    logger.warn(error);
   }
 
   throw new AppError("Token inválido", 403);

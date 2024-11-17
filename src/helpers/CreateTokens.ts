@@ -11,7 +11,11 @@ export const createAccessToken = (user: User): string => {
       profile: user.profile,
       super: user.super,
       id: user.id,
-      companyId: user.companyId
+      companyId: user.companyId,
+      permissions: user?.profilePermission?.permissions??[],
+      isActive: user.isActive,
+      accessWeekdays: user.accessWeekdays,
+      accessWeekend: user.accessWeekend
     },
     secret,
     {

@@ -22,6 +22,7 @@ import Company from "./Company";
 import Whatsapp from "./Whatsapp";
 import WhatsappQueue from "./WhatsappQueue";
 import QueueOption from "./QueueOption";
+import SupervisorQueue from "./SupervisorQueue";
 
 @Table
 class Queue extends Model<Queue> {
@@ -71,6 +72,9 @@ class Queue extends Model<Queue> {
 
   @BelongsToMany(() => User, () => UserQueue)
   users: Array<User & { UserQueue: UserQueue }>;
+
+  @BelongsToMany(() => User, () => SupervisorQueue)
+  supervisors: Array<User & { SupervisorQueue: SupervisorQueue }>;
 
   @HasMany(() => QueueOption, {
     onDelete: "DELETE",

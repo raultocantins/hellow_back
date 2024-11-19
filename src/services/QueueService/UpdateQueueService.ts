@@ -4,6 +4,7 @@ import AppError from "../../errors/AppError";
 import Queue from "../../models/Queue";
 import ShowQueueService from "./ShowQueueService";
 import { logger } from "../../utils/logger";
+import User from "../../models/User";
 
 interface QueueData {
   name?: string;
@@ -16,7 +17,8 @@ interface QueueData {
 const UpdateQueueService = async (
   queueId: number | string,
   queueData: QueueData,
-  companyId: number
+  companyId: number,
+  supervisors: number[]
 ): Promise<Queue> => {
   const { color, name } = queueData;
 
@@ -64,7 +66,7 @@ const UpdateQueueService = async (
   try {
     await queueSchema.validate({ color, name });
   } catch (err: any) {
-    logger.error(err)
+    logger.error(err);
     throw new AppError(err.message);
   }
 
@@ -76,7 +78,19 @@ const UpdateQueueService = async (
 
   await queue.update(queueData);
 
-  return queue;
+  const supervisorsUsers = await User.findAll({
+    where: { id: supervisors, companyId: companyId }
+  });
+
+  if (supervisorsUsers.length) {
+    await queue.$set("supervisors", supervisors);
+  }
+
+  const createdQueue = await Queue.findByPk(queue.id, {
+    include: [{ model: User, as: "supervisors",attributes: ["id","name","email","isActive","online"]  }]
+  });
+
+  return createdQueue;
 };
 
 export default UpdateQueueService;

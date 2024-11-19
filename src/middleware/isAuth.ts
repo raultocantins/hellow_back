@@ -62,17 +62,12 @@ const isAuth = (req: Request, res: Response, next: NextFunction): void => {
   } catch (err) {
     logger.warn(err);
     if (err instanceof AppError) {
-      if (err.statusCode !== 403) {
-        throw err;
-      } else {
-        throw new AppError(
-          "Invalid token. We'll try to assign a new one on next request",
-          403
-        );
-      }
-    } else {
-      throw new AppError("An unexpected error occurred", 500);
+      throw err;
     }
+    throw new AppError(
+      "Invalid token. We'll try to assign a new one on next request",
+      403
+    );
   }
 
   return next();

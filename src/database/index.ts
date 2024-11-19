@@ -29,6 +29,7 @@ import Invoices from "../models/Invoices";
 import Subscriptions from "../models/Subscriptions";
 import UserSocketSession from "../models/UserSocketSession";
 import Profile from "../models/Profile";
+import SupervisorQueue from "../models/SupervisorQueue";
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const dbConfig = require("../config/database");
@@ -65,7 +66,8 @@ const models = [
   ChatMessage,
   Invoices,
   Subscriptions,
-  Profile
+  Profile,
+  SupervisorQueue
 ];
 
 sequelize.addModels(models);

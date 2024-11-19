@@ -4,6 +4,7 @@ import Queue from "../../models/Queue";
 import Company from "../../models/Company";
 import Plan from "../../models/Plan";
 import { logger } from "../../utils/logger";
+import User from "../../models/User";
 
 interface QueueData {
   name: string;
@@ -14,7 +15,10 @@ interface QueueData {
   schedules?: unknown[];
 }
 
-const CreateQueueService = async (queueData: QueueData): Promise<Queue> => {
+const CreateQueueService = async (
+  queueData: QueueData,
+  supervisors: number[]
+): Promise<Queue> => {
   const { color, name, companyId } = queueData;
 
   const company = await Company.findOne({
@@ -81,13 +85,25 @@ const CreateQueueService = async (queueData: QueueData): Promise<Queue> => {
   try {
     await queueSchema.validate({ color, name });
   } catch (err: any) {
-    logger.error(err)
+    logger.error(err);
     throw new AppError(err.message);
   }
 
   const queue = await Queue.create(queueData);
 
-  return queue;
+  const supervisorsUsers = await User.findAll({
+    where: { id: supervisors, companyId: companyId }
+  });
+
+  if (supervisorsUsers.length) {
+    await queue.$set("supervisors", supervisors);
+  }
+
+  const createdQueue = await Queue.findByPk(queue.id, {
+    include: [{ model: User, as: "supervisors",attributes: ["id","name","email","isActive","online"]  }]
+  });
+
+  return createdQueue;
 };
 
 export default CreateQueueService;

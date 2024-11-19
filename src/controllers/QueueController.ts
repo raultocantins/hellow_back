@@ -32,18 +32,27 @@ export const index = async (req: Request, res: Response): Promise<Response> => {
 };
 
 export const store = async (req: Request, res: Response): Promise<Response> => {
-  const { name, color, greetingMessage, outOfHoursMessage, schedules } =
-    req.body;
-  const { companyId } = req.user;
-
-  const queue = await CreateQueueService({
+  const {
     name,
     color,
     greetingMessage,
-    companyId,
     outOfHoursMessage,
-    schedules
-  });
+    schedules,
+    supervisors
+  } = req.body;
+  const { companyId } = req.user;
+
+  const queue = await CreateQueueService(
+    {
+      name,
+      color,
+      greetingMessage,
+      companyId,
+      outOfHoursMessage,
+      schedules
+    },
+    supervisors
+  );
 
   const io = getIO();
   io.emit(`company-${companyId}-queue`, {
@@ -70,7 +79,12 @@ export const update = async (
   const { queueId } = req.params;
   const { companyId } = req.user;
 
-  const queue = await UpdateQueueService(queueId, req.body, companyId);
+  const queue = await UpdateQueueService(
+    queueId,
+    req.body,
+    companyId,
+    req.body.supervisors
+  );
 
   const io = getIO();
   io.emit(`company-${companyId}-queue`, {
@@ -109,15 +123,15 @@ export const mediaUpload = async (
 
   try {
     const queue = await Queue.findByPk(queueId);
-   
+
     queue.update({
       mediaPath: file.filename,
       mediaName: file.originalname
     });
-   
+
     return res.send({ mensagem: "Arquivo Salvo" });
   } catch (err: any) {
-    logger.error(err)
+    logger.error(err);
     throw new AppError(err.message);
   }
 };
@@ -141,7 +155,7 @@ export const deleteMedia = async (
     await queue.save();
     return res.send({ mensagem: "Arquivo excluído" });
   } catch (err: any) {
-    logger.error(err)
+    logger.error(err);
     throw new AppError(err.message);
   }
 };
